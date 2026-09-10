@@ -10,9 +10,6 @@
 }
 .assistant-entry .assistant-trigger { position: static; width: 100%; transform: none; }
 .column-open .assistant-entry { left: calc((100% + var(--sidebar-w) - var(--chat-column-w)) / 2); width: min(35rem, calc(100vw - var(--sidebar-w) - var(--chat-column-w) - 3rem)); }
-.layout-picker { display: flex; padding: 3px; border: 1px solid var(--border); border-radius: 999px; background: var(--background); box-shadow: var(--shadow-xs); }
-.layout-picker button { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border: 0; border-radius: 999px; font-size: 12px; background: transparent; color: var(--text-secondary); }
-.layout-picker button[aria-pressed="true"] { background: var(--accent-muted); color: var(--primary); }
 .resume-conversation { display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 48px; padding: 10px 20px; border: 1px solid color-mix(in oklch, var(--primary) 22%, white); border-radius: 999px; background: var(--background); color: var(--primary); font-size: 14px; font-weight: 500; box-shadow: var(--shadow-md); }
 .resume-conversation:hover { background: var(--secondary); }
 .assistant-surface {
@@ -70,7 +67,7 @@
 .chat-send { display: grid; place-items: center; width: 40px; height: 40px; flex: none; padding: 0; border: 0; border-radius: 50%; background: var(--primary); color: white; }
 .chat-send:hover:not(:disabled) { background: oklch(0.36 0.21 272.5); }
 .chat-send:disabled { background: var(--muted); color: var(--text-secondary); cursor: default; }
-.demo-notice { margin: 8px 0 0; text-align: center; color: var(--text-secondary); font-size: 10px; line-height: 1.5; }
+.demo-notice { margin: 8px 0 0; text-align: center; color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
 .new-reply { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; align-items: center; padding: 7px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--background); color: var(--primary); font-size: 12px; box-shadow: var(--shadow-md); }
 .minimized-chat { position: fixed; z-index: 60; bottom: 0; right: 24px; width: 280px; display: flex; align-items: center; gap: 6px; padding: 5px 8px; border: 1px solid var(--border); border-bottom: 0; border-radius: 12px 12px 0 0; background: var(--background); box-shadow: var(--shadow-lg); animation: card-reveal 140ms var(--ease-out); }
 .minimized-restore { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; min-height: 48px; padding: 5px; border: 0; border-radius: 6px; background: transparent; text-align: left; }

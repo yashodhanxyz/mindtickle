@@ -110,3 +110,67 @@ Physical-device software keyboards, VoiceOver/screen-reader announcement timing,
 - [P3] Consider increasing the demo caption's text size if it needs to carry more of the explanation independently of the surrounding assignment documentation. It currently remains secondary and does not compete with the conversation.
 
 **final result: passed**
+
+## Review iteration — simplify entry and responsive controls
+
+10 September 2026. This pass compares fresh before/after browser captures from the current review. The source of visual truth is the existing implementation plus the user's explicit request to remove the initial Floating chat / Third column selector and retain switching in the chat header. It is a scoped refinement, not a new visual direction.
+
+**Findings**
+
+No actionable P0, P1, or P2 differences remain in the reviewed captures or final source diff. The redundant entry selector is gone, the chat header retains desktop switching, and the original host composition and coaching card are preserved.
+
+| State | Source capture | Revised implementation | Dimensions and normalization |
+|---|---|---|---|
+| Initial entry, conversation closed | [Before](../docs/design/review-2026-09-10/01-entry-before.jpg) | [After](../docs/design/review-2026-09-10/01-entry-after.jpg) | Both 1280 × 720 raster pixels; reported CSS viewport 1280 × 720; 1:1 effective density, no rescaling |
+| Floating, first assessment complete, evidence collapsed | [Before](../docs/design/review-2026-09-10/02-floating-before.jpg) | [After](../docs/design/review-2026-09-10/02-floating-after.jpg) | Both 1280 × 720 raster pixels; reported CSS viewport 1280 × 720; 1:1 effective density, no rescaling |
+| Integrated column, same completed assessment | [Before](../docs/design/review-2026-09-10/03-column-before.jpg) | [After](../docs/design/review-2026-09-10/03-column-after.jpg) | Both 1280 × 720 raster pixels; reported CSS viewport 1280 × 720; 1:1 effective density, no rescaling |
+| Mobile, same completed assessment | [Before](../docs/design/review-2026-09-10/04-mobile-before.jpg) | [After](../docs/design/review-2026-09-10/04-mobile-after.jpg) | Both 390 × 844 raster pixels; reported CSS viewport 390 × 844; 1:1 effective density, no rescaling |
+
+Each before/after pair was opened together in the same comparison input. Full-view comparisons confirm unchanged shell proportions, bottom attachment, column reflow, and mobile fullscreen structure. The slightly taller caption footer reduces the transcript height by approximately 3 px; corresponding scroll cropping at the transcript's upper edge is expected, not missing content. The column's third host statistic remains below the viewport fold, as in the baseline.
+
+Focused inspection of the header icons, card labels/scores, evidence disclosure, composer, and footer was performed within each original-resolution paired input. Those regions are legible at these sizes; additional cropped assets were unnecessary.
+
+### Five fidelity surfaces
+
+| Surface | Review result |
+|---|---|
+| Fonts and typography | Host and conversation family, weights, hierarchy, line heights, and wrapping match the baseline. The demo notice intentionally increases from 10 px to 12 px, remains one line at 390 px, and reads clearly without a tooltip. No clipping or new truncation is visible. Font fallback and platform antialiasing were not independently exercised. |
+| Spacing and layout rhythm | Initial selector removal leaves the prescribed entry at its original bottom position. Floating and column geometry, card padding, borders, rounded corners, and message rhythm remain consistent. Removing the duplicate Focus conversation button clears the host area it previously obscured. |
+| Colors and tokens | Existing neutral surfaces, primary accent, user bubble, borders, focus styling, and disabled-send appearance are preserved. No new semantic score colors or palette drift appear. This is visual comparison, not a new numerical contrast audit. |
+| Image quality and assets | The supplied Aria logo remains sharp and proportionate. Header controls keep the existing icon-library style. The mobile layout icon is intentionally replaced by Minimize; no source image or logo was approximated with code art. |
+| Copy and content | The fixed question, assessment, three skill labels/scores, Q3 period, next step, and evidence action are preserved. The clearer caption explicitly says follow-ups are demo replies. Desktop layout control remains available; source inspection confirms the intermediate-width label is now Expand conversation. |
+
+### Fix and re-comparison history
+
+1. **Requested entry simplification, resolved:** the before entry capture shows two layout choices above the prompt. The after capture removes them while preserving the initial question and submit control.
+2. **[P2, resolved] Duplicate control behind the floating surface:** the floating before capture shows a partially obscured Focus conversation button. The after capture removes that duplicate; source now hides the entry whenever the conversation is open or minimized and restores Resume when closed.
+3. **[P2, resolved] Mobile layout switch without a layout change:** the mobile before capture shows a layout icon despite both modes using fullscreen. The after capture shows Minimize and Close. The source retains the selected desktop mode internally and removes switching only at widths where both layouts converge.
+4. **[P2, resolved in source; live breakpoint verification owned by root] Misleading intermediate-width label:** at 761–1099 px the layout action expands fullscreen, so its label and icon now say Expand conversation. At 1100 px and above it remains Use integrated third column. The matched screenshots above do not exercise this intermediate-width behavior.
+5. **[P3, resolved] Small and indirect demo explanation:** the enlarged, explicit footer copy is visible in all three after conversation captures, with no overlap or clipping. This supersedes the earlier report's caption-polish suggestion.
+
+### Verification boundaries
+
+The reviewer inspected the final scoped diff in `App.tsx`, `AssistantExperience.tsx`, and `assistant.css`; the conversation provider and mock contract are unchanged. Root reports all **8 tests passing** and a successful production build after these edits.
+
+Root separately reported the following live checks; these are not independently claimed from the paired screenshots:
+
+- Default invocation opens floating with no selector. At 1280 px, switching to the integrated column and back preserves four messages and an unsent draft. Evidence displays the exact three supplied snippets, and Enter sends a scoped follow-up.
+- At 936 px, floating measures 460 × 760 px; Expand conversation becomes a full-width 936 px dialog. Shrinking to 320 px removes the switch, moves focus to the heading, and makes Minimize the next Tab target. The draft textarea measures 64 px for both client and scroll height, without clipping, and the notice is 12 px.
+- Mobile minimize/restore retains the draft, and Escape returns focus to Resume. The viewport override was reset afterward.
+- Console error/warning entries after the fresh reload at `2026-09-10T07:47:45.066Z` were empty. An earlier HMR dependency-array warning at `07:46:21` remains in historical logs and is not represented as a fresh-load failure.
+
+Earlier limitations for physical mobile keyboards, screen-reader announcements, enlarged text, OS reduced-motion switching, and formal accessibility conformance still apply.
+
+**Open Questions**
+
+- None blocking this scoped refinement.
+
+**Implementation Checklist**
+
+- [x] Compare fresh entry, floating, column, and mobile before/after pairs together.
+- [x] Evaluate typography, spacing, tokens, assets, and app copy.
+- [x] Recheck the removed selector, obscured duplicate control, mobile controls, and readable demo notice.
+- [x] Inspect responsive label and focus-recovery changes in the final source diff.
+- [x] Preserve the first-answer contract and both desktop layouts.
+
+**final result: passed**

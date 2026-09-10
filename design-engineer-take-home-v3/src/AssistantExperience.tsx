@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
-import { ArrowDown, ArrowUp, ChevronDown, LoaderCircle, Minus, PanelRight, PanelsTopLeft, X } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronDown, LoaderCircle, Maximize2, Minus, PanelRight, PanelsTopLeft, X } from "lucide-react";
 import type { CoachingCard as CoachingCardData } from "../mock/types";
 import { DEMO_FOLLOWUP_NOTICE } from "./conversation";
 import type { useConversation } from "./useConversation";
@@ -48,6 +48,8 @@ export function AssistantExperience({ conversation, active, layout, onLayoutChan
   const anchor = useRef<{ id: string; offset: number } | null>(null);
   const lastVisibleMessages = useRef(messages);
   const [hasNewReply, setHasNewReply] = useState(false);
+  const canSwitchLayout = viewport.width > 760;
+  const layoutSwitchLabel = layout === "column" ? "Use floating chat" : viewport.width < 1100 ? "Expand conversation" : "Use integrated third column";
 
   const rememberPosition = () => {
     const scroll = scrollRef.current;
@@ -81,7 +83,7 @@ export function AssistantExperience({ conversation, active, layout, onLayoutChan
     if (!active) return;
     restoreReadingPosition();
     if (viewport.isMobile && !surfaceRef.current?.contains(document.activeElement)) headingRef.current?.focus({ preventScroll: true });
-  }, [active, layout, viewport.isMobile, viewport.height, messages, evidenceOpen]);
+  }, [active, layout, viewport.isMobile, viewport.height, canSwitchLayout, messages, evidenceOpen]);
 
   useEffect(() => {
     if (!active) return;
@@ -166,11 +168,11 @@ export function AssistantExperience({ conversation, active, layout, onLayoutChan
       <img className="chat-brand" src="/aria-logo.png" alt="" width="32" height="32" />
       <div className="chat-heading"><h2 ref={headingRef} tabIndex={-1} id="assistant-title">AI Assistant</h2><p>Marcus · Discovery calls</p></div>
       <div className="chat-actions">
-        <button className="chat-icon-button" type="button" onClick={() => onLayoutChange(layout === "floating" ? "column" : "floating")}
-          aria-label={layout === "floating" ? "Use integrated third column" : "Use floating chat"} title={layout === "floating" ? "Use integrated third column" : "Use floating chat"}>
-          {layout === "floating" ? <PanelRight size={18} aria-hidden="true" /> : <PanelsTopLeft size={18} aria-hidden="true" />}
-        </button>
-        {layout === "floating" && <button className="chat-icon-button" type="button" aria-label="Minimize conversation" title="Minimize conversation" onClick={onMinimize}><Minus size={18} aria-hidden="true" /></button>}
+        {canSwitchLayout && <button className="chat-icon-button" type="button" onClick={() => onLayoutChange(layout === "floating" ? "column" : "floating")}
+          aria-label={layoutSwitchLabel} title={layoutSwitchLabel}>
+          {layout === "column" ? <PanelsTopLeft size={18} aria-hidden="true" /> : viewport.width < 1100 ? <Maximize2 size={18} aria-hidden="true" /> : <PanelRight size={18} aria-hidden="true" />}
+        </button>}
+        {(layout === "floating" || !canSwitchLayout) && <button className="chat-icon-button" type="button" aria-label="Minimize conversation" title="Minimize conversation" onClick={onMinimize}><Minus size={18} aria-hidden="true" /></button>}
         <button className="chat-icon-button" type="button" aria-label="Close conversation" title="Close conversation (Escape)" onClick={onDismiss}><X size={18} aria-hidden="true" /></button>
       </div>
     </header>
@@ -202,7 +204,7 @@ export function AssistantExperience({ conversation, active, layout, onLayoutChan
           {busy ? <LoaderCircle size={18} aria-hidden="true" /> : <ArrowUp size={20} aria-hidden="true" />}
         </button>
       </form>
-      <p className="demo-notice" title={DEMO_FOLLOWUP_NOTICE}>Demo conversation · Based on the supplied assessment</p>
+      <p className="demo-notice" title={DEMO_FOLLOWUP_NOTICE}>Follow-ups are demo replies based on this assessment.</p>
     </footer>
   </section>;
 }

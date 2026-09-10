@@ -7,7 +7,7 @@
  * they help the proposed experience feel coherent.
  */
 import { useCallback, useRef, useState, type CSSProperties } from "react";
-import { MessageSquare, PanelRight, Sparkles, X } from "lucide-react";
+import { Sparkles, X } from "lucide-react";
 import { AssistantExperience } from "./AssistantExperience";
 import { useConversation } from "./useConversation";
 import { useAssistantViewport } from "./useAssistantViewport";
@@ -170,13 +170,9 @@ export function App() {
           </div>
         </div>
 
-      <div className="assistant-entry" hidden={viewport.width < 1100 && (presentation === "minimized" || (assistantIsOpen && layout === "floating"))}>
-        {!conversation.hasStarted && <div className="layout-picker" role="group" aria-label="Conversation layout">
-          <button type="button" aria-pressed={layout === "floating"} onClick={() => setLayout("floating")}><MessageSquare size={14} aria-hidden="true" /> Floating chat</button>
-          <button type="button" aria-pressed={layout === "column"} onClick={() => setLayout("column")}><PanelRight size={14} aria-hidden="true" /> Third column</button>
-        </div>}
+      <div className="assistant-entry" hidden={presentation !== "closed"}>
       {conversation.hasStarted ? <button ref={resumeRef} className="resume-conversation" type="button" onClick={invokeAssistant} aria-controls="assistant-conversation" aria-expanded={assistantIsOpen}>
-        <Sparkles size={19} aria-hidden="true" />{assistantIsOpen ? "Focus conversation" : "Resume conversation"}
+        <Sparkles size={19} aria-hidden="true" />Resume conversation
       </button> : <form
         className="assistant-trigger"
         aria-label="Ask AI Assistant"
