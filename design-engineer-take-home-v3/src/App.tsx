@@ -6,8 +6,11 @@
  * <AssistantExperience />. Small shell integration changes are welcome when
  * they help the proposed experience feel coherent.
  */
-import { useRef, useState, type CSSProperties } from "react";
+import { useCallback, useRef, useState, type CSSProperties } from "react";
+import { MessageSquare, PanelRight, Sparkles, X } from "lucide-react";
 import { AssistantExperience } from "./AssistantExperience";
+import { useConversation } from "./useConversation";
+import { useAssistantViewport } from "./useAssistantViewport";
 import { EntityPreview } from "./EntityPreview";
 import { Icons } from "./icons";
 
@@ -20,27 +23,39 @@ const overviewSignals = [
 ] as const;
 
 export function App() {
-  const [prompt, setPrompt] = useState(DEFAULT_PROMPT);
-  const [submittedPrompt, setSubmittedPrompt] = useState(DEFAULT_PROMPT);
-  const [assistantIsOpen, setAssistantIsOpen] = useState(false);
+  const [presentation, setPresentation] = useState<"closed" | "open" | "minimized">("closed");
+  const [layout, setLayout] = useState<"floating" | "column">(() => new URLSearchParams(window.location.search).get("layout") === "column" ? "column" : "floating");
+  const [focusRequest, setFocusRequest] = useState({ sequence: 0, target: "heading" as "heading" | "composer" });
   const [sidebarIsCompact, setSidebarIsCompact] = useState(false);
   const triggerRef = useRef<HTMLInputElement>(null);
+  const resumeRef = useRef<HTMLButtonElement>(null);
+  const minimizedRef = useRef<HTMLButtonElement>(null);
+  const conversation = useConversation();
+  const viewport = useAssistantViewport();
+  const conversationViewport = { ...viewport, isMobile: viewport.isMobile || (layout === "column" && viewport.width < 1100) };
+  const assistantIsOpen = presentation === "open";
+  const modalIsOpen = assistantIsOpen && conversationViewport.isMobile;
 
-  const invokeAssistant = (text?: string) => {
-    const next = (text ?? prompt).trim() || DEFAULT_PROMPT;
-    setPrompt(next);
-    setSubmittedPrompt(next);
-    setAssistantIsOpen(true);
+  const invokeAssistant = () => {
+    const target = conversation.hasStarted ? "composer" : "heading";
+    if (!conversation.hasStarted) conversation.send(DEFAULT_PROMPT);
+    setPresentation("open");
+    setFocusRequest((request) => ({ sequence: request.sequence + 1, target }));
   };
 
-  const dismissAssistant = () => {
-    setAssistantIsOpen(false);
-    window.requestAnimationFrame(() => triggerRef.current?.focus());
+  const dismissAssistant = useCallback(() => {
+    setPresentation("closed");
+    window.requestAnimationFrame(() => (resumeRef.current ?? triggerRef.current)?.focus());
+  }, []);
+
+  const minimizeAssistant = () => {
+    setPresentation("minimized");
+    window.requestAnimationFrame(() => minimizedRef.current?.focus());
   };
 
   return (
-    <div className={`app-shell${sidebarIsCompact ? " sidebar-compact" : ""}`}>
-      <aside className="sidebar" aria-label="Primary">
+    <div className={`app-shell${sidebarIsCompact ? " sidebar-compact" : ""}${assistantIsOpen && layout === "column" && !conversationViewport.isMobile ? " column-open" : ""}`}>
+      <aside className="sidebar" aria-label="Primary" inert={modalIsOpen}>
         <div className="brand-row">
           <a className="brand" href="#top" aria-label="Aria Sales Hub home">
             <img src="/aria-logo.png" alt="" width={26} height={26} />
@@ -85,7 +100,7 @@ export function App() {
         </div>
       </aside>
 
-      <main className="main" id="top">
+      <main className="main" id="top" inert={modalIsOpen}>
         <div className="main-inner">
           <div className="greeting-row">
             <h1 className="greeting">Good to see you, Jordan.</h1>
@@ -155,10 +170,14 @@ export function App() {
           </div>
         </div>
 
-        {assistantIsOpen ? <AssistantExperience prompt={submittedPrompt} onDismiss={dismissAssistant} triggerRef={triggerRef} /> : null}
-      </main>
-
-      <form
+      <div className="assistant-entry" hidden={viewport.width < 1100 && (presentation === "minimized" || (assistantIsOpen && layout === "floating"))}>
+        {!conversation.hasStarted && <div className="layout-picker" role="group" aria-label="Conversation layout">
+          <button type="button" aria-pressed={layout === "floating"} onClick={() => setLayout("floating")}><MessageSquare size={14} aria-hidden="true" /> Floating chat</button>
+          <button type="button" aria-pressed={layout === "column"} onClick={() => setLayout("column")}><PanelRight size={14} aria-hidden="true" /> Third column</button>
+        </div>}
+      {conversation.hasStarted ? <button ref={resumeRef} className="resume-conversation" type="button" onClick={invokeAssistant} aria-controls="assistant-conversation" aria-expanded={assistantIsOpen}>
+        <Sparkles size={19} aria-hidden="true" />{assistantIsOpen ? "Focus conversation" : "Resume conversation"}
+      </button> : <form
         className="assistant-trigger"
         aria-label="Ask AI Assistant"
         onSubmit={(event) => {
@@ -166,11 +185,23 @@ export function App() {
           invokeAssistant();
         }}
       >
-        <label className="sr-only" htmlFor="assistant-prompt">Ask AI Assistant anything</label>
-        <input ref={triggerRef} id="assistant-prompt" value={prompt} autoComplete="off" onChange={(event) => setPrompt(event.target.value)} />
+        <label className="sr-only" htmlFor="assistant-prompt">Initial coaching question</label>
+        <input ref={triggerRef} id="assistant-prompt" value={DEFAULT_PROMPT} readOnly />
         <button className="icon-button optional-action" type="button" aria-label="Voice input" disabled><Icons.mic data-icon="inline-only" /></button>
         <button className="icon-button primary" type="submit" aria-label="Ask AI Assistant"><Icons.arrowUp data-icon="inline-only" /></button>
-      </form>
+      </form>}
+      </div>
+      </main>
+
+      <AssistantExperience conversation={conversation} active={assistantIsOpen} layout={layout} onLayoutChange={setLayout}
+        onDismiss={dismissAssistant} onMinimize={minimizeAssistant} viewport={conversationViewport} focusRequest={focusRequest} />
+
+      {presentation === "minimized" && <div className="minimized-chat" onKeyDown={(event) => { if (event.key === "Escape") dismissAssistant(); }}>
+        <button ref={minimizedRef} className="minimized-restore" type="button" onClick={invokeAssistant} aria-label="Restore AI Assistant conversation" aria-controls="assistant-conversation" aria-expanded={false}>
+          <img src="/aria-logo.png" alt="" width="28" height="28" /><span><strong>AI Assistant</strong><small>{conversation.busy ? "Preparing reply…" : "Marcus · Discovery calls"}</small></span>
+        </button>
+        <button className="chat-icon-button" type="button" aria-label="Close AI Assistant" onClick={dismissAssistant}><X size={18} aria-hidden="true" /></button>
+      </div>}
     </div>
   );
 }

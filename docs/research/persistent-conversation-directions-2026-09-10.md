@@ -2,6 +2,8 @@
 
 10 September 2026. Research and design proposals; no conversational UI or model integration implemented.
 
+**Implementation update:** this records the earlier research stage. Both layouts are now implemented as a local guided demo; see the [working-layout notes](../design/implementation-2026-09-10.md).
+
 **Next stage:** the [conversation storyboards](../design/conversation-storyboards-2026-09-10.md) compare these two layouts through the same three exchanges, evidence inspection, unsent draft, and close/resume sequence. They include desktop concepts and one shared mobile adaptation.
 
 ## Revised brief

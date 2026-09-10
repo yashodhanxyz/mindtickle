@@ -1,5 +1,7 @@
 # Conversation storyboards: floating chat and an integrated column
 
+**Implementation update:** the user subsequently selected both layouts and added bottom attachment plus minimize/close to floating chat. See the [working-layout notes](implementation-2026-09-10.md). The static exploration below records the preceding design stage; its pending-selection and no-implementation statements are historical.
+
 10 September 2026. **Static design comparison. App code is unchanged; no model is connected; layout selection is pending.**
 There are two desktop options and one shared mobile adaptation.
 

@@ -1,0 +1,112 @@
+# Design QA — two persistent conversation layouts
+
+10 September 2026. Independent review using the Product Design design-qa skill.
+
+**Findings**
+
+No actionable P0, P1, or P2 differences remain in the reviewed captures. The floating conversation is attached to the bottom of the viewport, with minimize and close controls. The integrated option allocates a real third column and reflows the host. Both preserve the same conversation and draft.
+
+This is a visual and implementation review of a guided prototype. It does not certify accessibility or establish that a general-purpose model is connected.
+
+## Source of truth and comparison method
+
+The [README](README.md), [unchanged mock](mock/streamAnswer.ts), existing host tokens/assets, [conversation specification](../docs/design/conversation-storyboards-2026-09-10.md), and the user's latest bottom-attachment/minimize/both-layout instruction take precedence over incidental generated-image differences.
+
+| Surface | Source visual truth | Rendered implementation | State / viewport |
+|---|---|---|---|
+| Floating desktop | [Bottom-attached reference](../docs/design/assets/conversation-bottom-attached.png) | [Floating conversation](../docs/design/implementation/floating-three-turns.png) | Three completed exchanges, collapsed evidence, exact unsent draft; 1440 × 900 CSS px |
+| Integrated desktop | [Column reference](../docs/design/assets/conversation-column-desktop.png) | [Column conversation](../docs/design/implementation/column-three-turns.png) | Same thread and draft; 1440 × 900 CSS px |
+| Mobile resumed | Right-hand frame of [shared mobile board](../docs/design/assets/conversation-mobile-storyboard.png) | [Mobile resumed](../docs/design/implementation/mobile-resumed.png) | Three exchanges and draft, keyboard hidden; 390 × 844 CSS px |
+| Narrow mobile regression | Same mobile conversation concept | [Before fix](../docs/design/implementation/mobile-320-before-fix.png), [after fix](../docs/design/implementation/mobile-320-fixed.png) | Same draft after width reduction; 320 × 568 CSS px |
+| First answer | Left-hand frame of the shared mobile board, plus exact mock | [Floating first answer](../docs/design/implementation/floating-first-answer.png) | Narrative, complete card, collapsed evidence; 1440 × 900 CSS px; content comparison across different placements |
+| Minimized | Latest user instruction; compact continuation of floating styling | [Desktop minimized](../docs/design/implementation/floating-minimized.png), [mobile minimized](../docs/design/implementation/mobile-minimized.png) | Bottom-attached restore bar and close control; 1440 × 900 and 320 × 568 CSS px |
+
+Each source and implementation pair was opened together in the same comparison input. The mobile board and both 320 px regression captures were also viewed together. These were comparisons of actual image contents, not filenames or descriptions.
+
+### Size, density, and normalization
+
+- Both desktop source images are **1586 × 992 pixels**, generated for an intended 1440 × 900 composition. Geometric comparison uses approximately **0.908 source pixels-to-CSS scale**; this is an illustrative export scale, not a known browser device-pixel ratio. The implementation captures are **1440 × 900 pixels at 1440 × 900 CSS px**, density 1.
+- The mobile source is a **1190 × 1322 pixel board with two app frames and exterior labels**. The intended frame target was 390 × 844 CSS px. Its generated frame dimensions and typography are approximate, so the right frame is a composition/content target, not a pixel oracle. Board title, labels, margins, and the left frame are excluded when comparing the resumed state.
+- Mobile implementation captures are **390 × 844** and **320 × 568 pixels**, matching their CSS viewports at density 1. They contain the application viewport without browser chrome, hardware bezels, or software keyboard.
+- Comparisons account for the scale difference; no pixel-diff score or exact raster match is claimed. Source assets were not stretched into the implementation.
+- Desktop captures share the same three-turn state, but the visible top of the transcript differs because the implementation follows its actual scroll position. Earlier narrative/card content remains in the thread. A clipped fragment at the transcript's top boundary is scroll cropping, not deleted content.
+
+### Full-view and focused-region evidence
+
+Full-view comparison confirms the intended distinction: the floating panel covers part of the unchanged host; the column reduces the main content width, shows two upper statistic cards plus a full-width third card, and uses the full viewport height. Both keep the composer inside the conversation surface.
+
+The reviewer separately inspected the header controls, each visible card score/label, evidence control, reply paragraphs, suggested-wording label, draft composer, focus ring, and minimized bar within the original-resolution combined image inputs. Those regions are legible at the supplied resolutions, so separate enlarged crop files were unnecessary. The first-answer capture provides the complete card detail absent from the scrolled desktop heroes. The narrow before/after pair provides direct focused evidence of the composer regression and correction.
+
+## Required fidelity surfaces
+
+| Surface | Evaluation | Classification |
+|---|---|---|
+| Fonts and typography | The implementation uses the supplied Inter Variable font with system fallbacks. Conversation body text is 15 px with a 1.55 line height; the mobile composer is 16 px. Header/card headings, 12 px context labels, regular body copy, and tabular scores retain distinct hierarchy. Original-resolution captures show clean glyphs, deliberate weight differences, readable wrapping, and no remaining clipped draft line. Generated reference glyphs and exact wrapping vary; the real host font is authoritative. | Acceptable. The 10 px demo caption is subordinate metadata; the full notice is also available through its title. A formal font-loading/fallback failure test was not part of this visual pass. |
+| Spacing and layout rhythm | Floating width is 460 CSS px, bottom 0, with restrained rounded top corners and shadow. Root browser measurements confirm the integrated 1440 px grid as 240 / 740 / 460 px. Message gaps, card padding, aligned right-side scores, divider spacing, and composer separation are consistent. At 320 px, the corrected composer expands to show both draft lines and retains the send control. | Acceptable. The host's actual 240 px navigation and source padding supersede approximate generated geometry. |
+| Colors and visual tokens | White conversation surfaces, neutral borders/shadows, pale indigo user bubbles, dark text, and the original primary accent match the host's token system. Scores have no unsupported red/green interpretation. Focus is visibly outlined in the inspected focused captures; disabled send and active send are distinguishable. | Acceptable visual contrast and state distinction in these captures; no numerical contrast audit or forced-colors test is claimed. |
+| Image quality and asset fidelity | The supplied `/aria-logo.png` is retained for brand/assistant imagery. It appears sharp and correctly proportioned. Header, disclosure, layout, minimize, close, and send icons use the existing/standard icon library. No generated screenshot is embedded as a functional UI, and no logo is replaced with CSS art, text, or handcrafted SVG. | Acceptable. The real logo and standard arrow-up send icon take precedence over approximate generated marks and paper-plane icons. |
+| Copy and content | The complete first-answer capture preserves Marcus Bell, Q3/six-call scope, the exact narrative, 4.1 / 3.8 / 2.9 scores, summary, and next step. The follow-up explanation and suggested wording match the storyboard. The draft remains solely in the composer. Evidence disclosure labels are explicit. No denominator, invented call link, timestamp, or new dataset is added. | Acceptable. The visible demo caption distinguishes authored, grounded prototype replies. The original September 4 fixture date is deliberately retained; the newer floating illustration's September 10 date is incidental generator drift. |
+
+## Comparison and fix history
+
+1. **[P2, resolved] Width-only resizing clipped an unsent draft.**
+   - Location: composer sizing in `src/AssistantExperience.tsx`.
+   - Evidence: `mobile-320-before-fix.png` shows the second line cut off inside a 40 px textarea. The mobile source expects the entire draft to remain readable.
+   - Fix: track visual-viewport width and observe the textarea's width, recalculating its height when wrapping changes.
+   - Post-fix evidence: `mobile-320-fixed.png` shows the same draft in a 64 px textarea, both lines fully visible, with the send button and focus ring intact. The reference, before, and after images were compared in one input.
+
+2. **[P2, resolved] Host styles could override assistant integration styles.**
+   - Earlier source review identified `assistant.css` loading before `styles.css`, allowing equal-specificity host rules to defeat container reflow, compact-sidebar mobile sizing, and reduced-motion scroll behavior.
+   - Fix: `src/main.tsx` now imports `assistant.css` after `styles.css`.
+   - Post-fix evidence: `column-three-turns.png` shows the intended two-plus-one statistic-card layout and wrapped central content. Source inspection confirms the final import order. The OS reduced-motion setting was not exercised in this review.
+
+3. **[P2, resolved] Resizing could lose the reader's logical position.**
+   - Earlier source review found that only message content was observed. Composer growth and width-only reflow could change the visible transcript without restoring bottom-following or the saved message anchor.
+   - Fix: an anchor-aware resize observer watches both content and transcript dimensions; composer width changes trigger sizing updates.
+   - Post-fix evidence: the narrow capture retains the latest reply above the expanded composer. Root's live check also measured close/resume at scrollTop **480 → 480**, with scrollHeight **1216** unchanged and the draft retained. Static captures alone do not prove every reflow path.
+
+4. **[P2, resolved] Resuming an unchanged older reading position falsely indicated a new reply.**
+   - Earlier source review found the indicator was set whenever the surface became active while scrolled upward.
+   - Fix: compare the current messages with the last visible message state before setting the indicator.
+   - Post-fix evidence: source inspection confirms the condition; root's live close/resume check reported `newReply: false` for an unchanged thread.
+
+5. **Scope clarity correction.** The initial entry previously invited arbitrary questions while the supplied mock ignored them. The entry now displays the prescribed question as read-only with the label “Initial coaching question.” Follow-ups remain editable and explicitly use bounded demo responses.
+
+These corrections include source-review findings as well as the captured visual regression. They are not represented as five separate pixel-comparison passes.
+
+## Interaction evidence and test boundaries
+
+Final responsive refinement: floating chat uses the full-screen form only at 760 CSS pixels or less. The column uses it below 1,100 pixels to protect the centre content. At the normal 936 × 1184 preview, root measured the floating panel at 460 × 760, right edge 912, bottom 1184, role `region`, with the host not inert. [Default-viewport capture](../docs/design/implementation/floating-default-viewport.png) records this state. An obscured duplicate entry control is hidden while this smaller-desktop floating panel is open; Escape restores and focuses Resume conversation. The final fresh-load error/warning filter remained empty.
+
+The root agent reported these live browser checks; this independent review corroborated the visible states and inspected the relevant source:
+
+- Both layouts show the same six messages and exact unsent draft; switching layout preserves the session.
+- Floating chat is 460 px wide and attached at bottom 0. Minimize exposes a compact restore bar; closing it returns focus to Resume conversation.
+- Closing before the first mock status does not abort the response. Resuming does not replay the initial question or create another card.
+- Escape closes the active conversation and returns focus to the entry. At 390 × 844, the background is inert and Tab cycles within the full-screen conversation.
+- Evidence toggles, close/resume, and the 320 px minimized state were exercised. The narrow minimized bar does not collide with a duplicate entry control.
+- The final post-fix `npm test` passed **8 tests**, and `npm run build` passed, including `tsc -b`. `git diff --check` was clean.
+
+The console history included three development/HMR errors during partial file writes and a changed effect dependency array during hot refresh. Those are historical development events; this report does not claim the entire console history was empty. After all source changes, root performed a fresh reload at 1440 × 900, selected Third column from the initial picker, submitted the prescribed question, and waited for the complete first answer. Error/warning logs filtered to timestamps at or after that clean reload returned **no entries**.
+
+Physical-device software keyboards, VoiceOver/screen-reader announcement timing, OS reduced-motion settings, forced colors, and formal accessibility conformance were not exercised by this reviewer. The implementation has corresponding viewport, focus, status, and reduced-motion code, but source inspection is not a substitute for those checks. Error presentation is covered at the conversation-controller level, not by an independent rendered-error screenshot. No live model endpoint is connected.
+
+**Open Questions**
+
+- None blocking this prototype's visual handoff. General model-backed follow-ups, reload persistence, and multiple conversations remain outside the present guided-demo scope.
+
+**Implementation Checklist**
+
+- [x] Compare both desktop references and the shared mobile reference with rendered captures.
+- [x] Inspect typography, spacing, tokens, asset fidelity, and exact coaching content.
+- [x] Recompare the 320 px draft regression after its sizing correction.
+- [x] Verify the final CSS import order, reading-position observer, and new-reply condition in source.
+- [x] Retain the working minimize/close/restore flow and both layout options.
+- [x] Record the final fresh-reload console result alongside the browser evidence.
+- [ ] Before a production accessibility claim, test VoiceOver, physical software keyboards, enlarged text, and OS reduced motion.
+
+**Follow-up Polish**
+
+- [P3] Consider increasing the demo caption's text size if it needs to carry more of the explanation independently of the surrounding assignment documentation. It currently remains secondary and does not compete with the conversation.
+
+**final result: passed**
