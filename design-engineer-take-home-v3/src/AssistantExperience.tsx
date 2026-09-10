@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
-import { ArrowDown, ArrowUp, ChevronDown, LoaderCircle, Maximize2, Minus, PanelRight, PanelsTopLeft, X } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronDown, LoaderCircle, Minus, X } from "lucide-react";
+import { EntityMention, EntityText } from "./EntityMention";
 import type { CoachingCard as CoachingCardData } from "../mock/types";
 import { DEMO_FOLLOWUP_NOTICE } from "./conversation";
 import type { useConversation } from "./useConversation";
@@ -9,7 +10,6 @@ type Props = {
   conversation: ReturnType<typeof useConversation>;
   active: boolean;
   layout: "floating" | "column";
-  onLayoutChange: (layout: "floating" | "column") => void;
   onDismiss: () => void;
   onMinimize: () => void;
   viewport: ReturnType<typeof useAssistantViewport>;
@@ -18,16 +18,16 @@ type Props = {
 
 function CoachingCard({ card, expanded, onToggle }: { card: CoachingCardData; expanded: boolean; onToggle: () => void }) {
   return <article className="coaching-card" aria-labelledby="coaching-card-title">
-    <h3 id="coaching-card-title">{card.rep}</h3>
+    <h3 id="coaching-card-title"><EntityMention entityId="marcus" label={card.rep} inline /></h3>
     <p className="card-period">{card.period}</p>
     <p className="card-summary">{card.summary}</p>
     <dl className="coaching-skills">
       {card.rows.map((row) => <div className="coaching-skill" key={row.id}>
         <dt>{row.skill}</dt><dd className="skill-score">{row.score.toFixed(1)}</dd>
-        <dd id={`evidence-${row.id}`} className="skill-evidence" hidden={!expanded}>{row.evidence}</dd>
+        <dd id={`evidence-${row.id}`} className="skill-evidence" hidden={!expanded}><EntityText text={row.evidence} /></dd>
       </div>)}
     </dl>
-    <p className="coaching-next-step"><strong>Next step:</strong> {card.nextStep}</p>
+    <p className="coaching-next-step"><strong>Next step:</strong> <EntityText text={card.nextStep} /></p>
     <button className="evidence-toggle" type="button" aria-expanded={expanded}
       aria-controls={card.rows.map((row) => `evidence-${row.id}`).join(" ")} onClick={onToggle}>
       <span>{expanded ? "Hide supporting evidence" : "Show supporting evidence"}</span>
@@ -36,7 +36,7 @@ function CoachingCard({ card, expanded, onToggle }: { card: CoachingCardData; ex
   </article>;
 }
 
-export function AssistantExperience({ conversation, active, layout, onLayoutChange, onDismiss, onMinimize, viewport, focusRequest }: Props) {
+export function AssistantExperience({ conversation, active, layout, onDismiss, onMinimize, viewport, focusRequest }: Props) {
   const { messages, draft, setDraft, busy, status, evidenceOpen, setEvidenceOpen, send } = conversation;
   const surfaceRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -48,8 +48,6 @@ export function AssistantExperience({ conversation, active, layout, onLayoutChan
   const anchor = useRef<{ id: string; offset: number } | null>(null);
   const lastVisibleMessages = useRef(messages);
   const [hasNewReply, setHasNewReply] = useState(false);
-  const canSwitchLayout = viewport.width > 760;
-  const layoutSwitchLabel = layout === "column" ? "Use floating chat" : viewport.width < 1100 ? "Expand conversation" : "Use integrated third column";
 
   const rememberPosition = () => {
     const scroll = scrollRef.current;
@@ -83,7 +81,7 @@ export function AssistantExperience({ conversation, active, layout, onLayoutChan
     if (!active) return;
     restoreReadingPosition();
     if (viewport.isMobile && !surfaceRef.current?.contains(document.activeElement)) headingRef.current?.focus({ preventScroll: true });
-  }, [active, layout, viewport.isMobile, viewport.height, canSwitchLayout, messages, evidenceOpen]);
+  }, [active, layout, viewport.isMobile, viewport.height, messages, evidenceOpen]);
 
   useEffect(() => {
     if (!active) return;
@@ -168,11 +166,7 @@ export function AssistantExperience({ conversation, active, layout, onLayoutChan
       <img className="chat-brand" src="/aria-logo.png" alt="" width="32" height="32" />
       <div className="chat-heading"><h2 ref={headingRef} tabIndex={-1} id="assistant-title">AI Assistant</h2><p>Marcus · Discovery calls</p></div>
       <div className="chat-actions">
-        {canSwitchLayout && <button className="chat-icon-button" type="button" onClick={() => onLayoutChange(layout === "floating" ? "column" : "floating")}
-          aria-label={layoutSwitchLabel} title={layoutSwitchLabel}>
-          {layout === "column" ? <PanelsTopLeft size={18} aria-hidden="true" /> : viewport.width < 1100 ? <Maximize2 size={18} aria-hidden="true" /> : <PanelRight size={18} aria-hidden="true" />}
-        </button>}
-        {(layout === "floating" || !canSwitchLayout) && <button className="chat-icon-button" type="button" aria-label="Minimize conversation" title="Minimize conversation" onClick={onMinimize}><Minus size={18} aria-hidden="true" /></button>}
+        {(layout === "floating" || viewport.isMobile) && <button className="chat-icon-button" type="button" aria-label="Minimize conversation" title="Minimize conversation" onClick={onMinimize}><Minus size={18} aria-hidden="true" /></button>}
         <button className="chat-icon-button" type="button" aria-label="Close conversation" title="Close conversation (Escape)" onClick={onDismiss}><X size={18} aria-hidden="true" /></button>
       </div>
     </header>
@@ -181,11 +175,11 @@ export function AssistantExperience({ conversation, active, layout, onLayoutChan
       <div ref={scrollRef} className="chat-transcript" role="region" aria-label="Conversation messages" tabIndex={0} onScroll={rememberPosition}>
         <div ref={contentRef} className="chat-messages">
           {messages.map((message) => <div key={message.id} data-message-id={message.id} className={`chat-message message-${message.role}`}>
-            {message.role === "user" ? <><span className="sr-only">You: </span><p>{message.text}</p></> : <>
+            {message.role === "user" ? <><span className="sr-only">You: </span><p><EntityText text={message.text} /></p></> : <>
               <img className="answer-avatar" src="/aria-logo.png" alt="" width="26" height="26" />
               <div className="answer-copy"><span className="sr-only">AI Assistant: </span>
                 {message.label && <p className="answer-label">{message.label}</p>}
-                {message.text && <p>{message.text}</p>}
+                {message.text && <p><EntityText text={message.text} /></p>}
                 {!message.text && !message.complete && busy && <p className="answer-progress"><LoaderCircle size={16} aria-hidden="true" />{status || "Preparing your answer…"}</p>}
               </div>
               {message.card && <CoachingCard card={message.card} expanded={evidenceOpen} onToggle={() => setEvidenceOpen(!evidenceOpen)} />}
@@ -204,7 +198,7 @@ export function AssistantExperience({ conversation, active, layout, onLayoutChan
           {busy ? <LoaderCircle size={18} aria-hidden="true" /> : <ArrowUp size={20} aria-hidden="true" />}
         </button>
       </form>
-      <p className="demo-notice" title={DEMO_FOLLOWUP_NOTICE}>Follow-ups are demo replies based on this assessment.</p>
+      <p className="demo-notice" title={DEMO_FOLLOWUP_NOTICE}>Demo replies · Assessment and fictional workspace context.</p>
     </footer>
   </section>;
 }

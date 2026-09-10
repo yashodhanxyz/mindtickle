@@ -12,6 +12,8 @@ npm ci
 npm run dev
 ```
 
+Open `/floating` for the bottom-attached chat or `/column` for the integrated third column on the dev server URL. Each page has a fixed presentation and fresh session, with no in-product layout switch. `/` remains a floating alias.
+
 ## Validate
 
 From the app folder:
@@ -26,7 +28,9 @@ GitHub Actions runs these checks on pushes and pull requests.
 
 ## Project contents
 
-- [Working conversation layouts](docs/design/implementation-2026-09-10.md): bottom-attached floating chat and an integrated third column, with shared mobile behaviour.
+- [Current implementation and QA](docs/design/separate-pages/README.md): separate pages, shared quick views, and desktop/mobile checks.
+- [Entity content research](docs/research/entity-context.md): source-informed fictional coaching and deal context.
+- [Earlier conversation layouts](docs/design/implementation-2026-09-10.md): bottom-attached floating chat and an integrated third column, with shared mobile behaviour.
 - [Design storyboards](docs/design/conversation-storyboards-2026-09-10.md): the earlier visual comparison and detailed interaction specification.
 - [Supporting research](docs/research/persistent-conversation-directions-2026-09-10.md): Mobbin patterns, source evidence, and design tradeoffs.
 - `design-engineer-take-home-v3/src/`: the supplied app shell and both working assistant layouts.

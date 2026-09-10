@@ -11,7 +11,9 @@ import { Sparkles, X } from "lucide-react";
 import { AssistantExperience } from "./AssistantExperience";
 import { useConversation } from "./useConversation";
 import { useAssistantViewport } from "./useAssistantViewport";
-import { EntityPreview } from "./EntityPreview";
+import { dismissEntityPreviews } from "./EntityPreview";
+import { EntityMention, EntityText } from "./EntityMention";
+import type { AssistantLayout } from "./pages";
 import { Icons } from "./icons";
 
 export const DEFAULT_PROMPT = "How is Marcus doing on discovery calls this quarter?";
@@ -22,9 +24,8 @@ const overviewSignals = [
   { label: "Deals needing attention", value: "3", context: "active", trend: [88, 76, 82, 68, 58, 52], note: "Brookfield and Percepto have follow-ups this week." },
 ] as const;
 
-export function App() {
+export function App({ layout }: { layout: AssistantLayout }) {
   const [presentation, setPresentation] = useState<"closed" | "open" | "minimized">("closed");
-  const [layout, setLayout] = useState<"floating" | "column">(() => new URLSearchParams(window.location.search).get("layout") === "column" ? "column" : "floating");
   const [focusRequest, setFocusRequest] = useState({ sequence: 0, target: "heading" as "heading" | "composer" });
   const [sidebarIsCompact, setSidebarIsCompact] = useState(false);
   const triggerRef = useRef<HTMLInputElement>(null);
@@ -37,6 +38,7 @@ export function App() {
   const modalIsOpen = assistantIsOpen && conversationViewport.isMobile;
 
   const invokeAssistant = () => {
+    dismissEntityPreviews();
     const target = conversation.hasStarted ? "composer" : "heading";
     if (!conversation.hasStarted) conversation.send(DEFAULT_PROMPT);
     setPresentation("open");
@@ -44,11 +46,13 @@ export function App() {
   };
 
   const dismissAssistant = useCallback(() => {
+    dismissEntityPreviews();
     setPresentation("closed");
     window.requestAnimationFrame(() => (resumeRef.current ?? triggerRef.current)?.focus());
   }, []);
 
   const minimizeAssistant = () => {
+    dismissEntityPreviews();
     setPresentation("minimized");
     window.requestAnimationFrame(() => minimizedRef.current?.focus());
   };
@@ -116,32 +120,11 @@ export function App() {
               <ul className="brief-points">
                 <li>
                   <b>Coaching.</b>{" "}
-                  <EntityPreview id="marcus-preview" label={<><span className="avatar cool">MB</span>Marcus Bell</>}>
-                    <span className="hover-card-head">
-                      <span className="avatar cool lg">MB</span>
-                      <span><strong>Marcus Bell</strong><small>Account executive · Mid-market</small></span>
-                    </span>
-                    <span className="preview-grid">
-                      <span><small>Calls available</small><strong>6 this quarter</strong></span>
-                      <span><small>Coaching moments</small><strong>2 ready</strong></span>
-                    </span>
-                    <span className="preview-note"><b>Active deal</b> Brookfield is in evaluation.</span>
-                  </EntityPreview>{", Lena Ortiz, and Didi Rao each have recent calls ready for review."}
+                  <EntityMention entityId="marcus" />{", "}<EntityMention entityId="lena" />{", and "}<EntityMention entityId="didi" /> each have recent calls ready for review.
                 </li>
                 <li>
                   <b>Deals.</b>{" "}
-                  <EntityPreview id="brookfield-preview" label={<><span className="mark"><Icons.shield data-icon="inline-start" /></span>Brookfield</>}>
-                    <span className="hover-card-head">
-                      <span className="mark large"><Icons.shield data-icon="inline-start" /></span>
-                      <span><strong>Brookfield</strong><small>Enterprise opportunity</small></span>
-                    </span>
-                    <span className="preview-grid">
-                      <span><small>Stage</small><strong>Evaluation</strong></span>
-                      <span><small>Next meeting</small><strong>September 9</strong></span>
-                    </span>
-                    <span className="preview-note"><b>Latest update</b> Security review is scheduled.</span>
-                  </EntityPreview>
-                  {" "}enters security review today; Percepto has a pricing follow-up Friday.
+                  <EntityMention entityId="brookfield" /> enters security review today; <EntityMention entityId="percepto" /> has a pricing follow-up Friday.
                 </li>
               </ul>
             </section>
@@ -162,7 +145,7 @@ export function App() {
                     <div className="bars" aria-hidden="true">
                       {signal.trend.map((height, index) => <span key={index} style={{ "--h": `${height}%` } as CSSProperties} />)}
                     </div>
-                    <p className="stat-note">{signal.note}</p>
+                    <p className="stat-note"><EntityText text={signal.note} /></p>
                   </article>
                 ))}
               </div>
@@ -189,7 +172,7 @@ export function App() {
       </div>
       </main>
 
-      <AssistantExperience conversation={conversation} active={assistantIsOpen} layout={layout} onLayoutChange={setLayout}
+      <AssistantExperience conversation={conversation} active={assistantIsOpen} layout={layout}
         onDismiss={dismissAssistant} onMinimize={minimizeAssistant} viewport={conversationViewport} focusRequest={focusRequest} />
 
       {presentation === "minimized" && <div className="minimized-chat" onKeyDown={(event) => { if (event.key === "Escape") dismissAssistant(); }}>

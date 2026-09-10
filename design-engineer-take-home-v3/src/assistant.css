@@ -13,7 +13,7 @@
 .resume-conversation { display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 48px; padding: 10px 20px; border: 1px solid color-mix(in oklch, var(--primary) 22%, white); border-radius: 999px; background: var(--background); color: var(--primary); font-size: 14px; font-weight: 500; box-shadow: var(--shadow-md); }
 .resume-conversation:hover { background: var(--secondary); }
 .assistant-surface {
-  z-index: 60; display: flex; flex-direction: column; min-width: 0; overflow: hidden;
+  z-index: 60; display: flex; flex-direction: column; min-width: 0; overflow: clip;
   background: var(--background); color: var(--foreground); font-size: 15px; line-height: 1.55;
   animation: conversation-enter 220ms var(--ease-out);
 }
@@ -31,7 +31,7 @@
 .chat-icon-button { width: 34px; height: 38px; display: grid; place-items: center; flex: none; padding: 0; border: 0; border-radius: 7px; color: var(--text-secondary); background: transparent; }
 .chat-icon-button:hover { background: var(--muted); color: var(--foreground); }
 .transcript-wrap { position: relative; flex: 1; min-height: 0; }
-.chat-transcript { height: 100%; overflow: auto; padding: 22px 18px; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: color-mix(in oklch, var(--text-secondary) 24%, transparent) transparent; overflow-anchor: none; scroll-behavior: auto; }
+.chat-transcript { position: relative; height: 100%; overflow: auto; padding: 22px 18px; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: color-mix(in oklch, var(--text-secondary) 24%, transparent) transparent; overflow-anchor: none; scroll-behavior: auto; }
 .chat-transcript:focus-visible { outline-offset: -3px; }
 .chat-messages { display: flex; flex-direction: column; gap: 26px; }
 .chat-message { min-width: 0; }
@@ -109,4 +109,29 @@
   html { scroll-behavior: auto; }
   .assistant-surface, .coaching-card, .minimized-chat, .answer-progress svg, .chat-send:disabled svg.lucide-loader-circle { animation: none; }
   .assistant-surface *, .resume-conversation { transition: none; scroll-behavior: auto; }
+}
+
+/* Shared people/deal previews in the workspace and conversation. */
+.entity-inline { display: inline; }
+.entity-text-trigger { display: inline; padding: 0; border: 0; border-radius: 3px; background: none; color: inherit; font: inherit; text-align: inherit; text-decoration: underline; text-decoration-color: color-mix(in oklch, currentColor 35%, transparent); text-underline-offset: 3px; cursor: pointer; }
+.entity-text-trigger:hover { color: var(--primary); text-decoration-color: currentColor; }
+.entity-text-trigger:focus-visible { outline-offset: 3px; }
+.entity-card { inset: auto; margin: 0; width: min(20rem, calc(100vw - 2rem)); overflow-y: auto; overscroll-behavior: contain; padding: 1rem; font-weight: 400; white-space: normal; }
+.entity-card:not(:popover-open) { display: none; }
+.entity-card::backdrop { background: transparent; }
+.preview-content { display: grid; gap: 0.875rem; }
+.entity-card .hover-card-head { padding-right: 22px; }
+.entity-card .hover-card-head > span:first-child { flex: none; }
+.preview-close { position: absolute; right: 6px; top: 6px; width: 32px; height: 32px; display: grid; place-items: center; border: 0; border-radius: 6px; color: var(--text-secondary); background: transparent; }
+.preview-close:hover { background: var(--muted); }
+.preview-next { display: grid; gap: 5px; color: var(--text-secondary); }
+.preview-next b { color: var(--foreground); font-weight: 600; }
+.preview-provenance { color: var(--text-secondary); font-size: 11px; border-top: 1px solid var(--border); padding-top: 10px; }
+@media (max-width: 760px) {
+  .entity-card { width: min(20rem, calc(100vw - 2rem)); }
+  .preview-close { width: 36px; height: 36px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entity-card { transition: none; transform: none; }
 }

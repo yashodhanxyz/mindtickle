@@ -1,3 +1,15 @@
+# Current QA — separate pages and shared entity context
+
+10 September 2026. Reviewed with the Product Design workflow. **The separate-page implementation passes the scoped checks.** See [current QA, captures, and limitations](../docs/design/separate-pages/README.md) and [research](../docs/research/entity-context.md).
+
+Both routes passed at 1440 × 900, 390 × 844, and 320 × 568 CSS pixels. All five entity previews have equal host/chat content. Evidence disclosure, preview dismissal, Escape layers, restored focus, drafts, mobile focus containment, and viewport bounds passed. No new browser errors occurred in the six final matrix runs. Twelve unit tests and the TypeScript/production build passed. Original README and mock are unchanged.
+
+The original and updated host captures were opened together at the same 1256 × 1204 viewport and resumed state. Existing font, avatar, tokens, card treatment, neutral colors, and icon family remain consistent. Intentional differences are peer chips, a wider card, next step, provenance, close control, and focus moving into the dialog. Desktop/mobile captures confirm fixed header/composer, readable body text, score alignment, and responsive wrapping. No unresolved visual defect was identified in the inspected states. Accessibility limits are explicitly recorded in the linked report; this is not a full conformance certification.
+
+---
+
+## Historical QA for the earlier layout-switch version
+
 # Design QA — two persistent conversation layouts
 
 10 September 2026. Independent review using the Product Design design-qa skill.

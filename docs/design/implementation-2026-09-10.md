@@ -1,5 +1,7 @@
 # Both conversational layouts are implemented
 
+> Historical implementation. The current version separates `/floating` and `/column` and removes the layout switch. See [current implementation and QA](separate-pages/README.md).
+
 10 September 2026. Local assignment prototype; follow-ups are explicitly labelled guided demo responses, with no connected model or external calls.
 
 The [original assignment README](../../design-engineer-take-home-v3/README.md) and fixed mock remain unchanged. [DECISIONS.md](../../design-engineer-take-home-v3/DECISIONS.md) explains prioritisation and AI use. [Design QA](../../design-engineer-take-home-v3/design-qa.md) records the checks and their limits.

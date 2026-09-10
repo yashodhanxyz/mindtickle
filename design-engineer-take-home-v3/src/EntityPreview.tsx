@@ -1,143 +1,145 @@
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { X } from "lucide-react";
 import { createPortal } from "react-dom";
 
-type EntityPreviewProps = {
-  id: string;
-  label: ReactNode;
-  children: ReactNode;
-};
+// Removing a card can expose another name under the stationary pointer.
+// Avoid immediately opening that unrelated card after an explicit dismissal.
+let ignoreHoverUntil = 0;
+let changingPopover = false;
 
-type PreviewPosition = {
-  left: number;
-  top: number;
-  ready: boolean;
-};
+export function dismissEntityPreviews() {
+  changingPopover = true;
+  try { document.querySelectorAll<HTMLElement>(".entity-card:popover-open").forEach((card) => card.hidePopover()); }
+  finally { changingPopover = false; }
+}
 
-const VIEWPORT_GUTTER = 16;
-const PREVIEW_GAP = 8;
-
-export function EntityPreview({ id, label, children }: EntityPreviewProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [position, setPosition] = useState<PreviewPosition>({ left: 0, top: 0, ready: false });
+/** Native top-layer popovers retain their place in the owning dialog's accessible tree. */
+export function EntityPreview({ name, label, children, inline = false }: { name: string; label: ReactNode; children: ReactNode; inline?: boolean }) {
+  const id = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const previewRef = useRef<HTMLSpanElement>(null);
-  const closeTimerRef = useRef<number | null>(null);
-
-  const cancelClose = useCallback(() => {
-    if (closeTimerRef.current !== null) {
-      window.clearTimeout(closeTimerRef.current);
-      closeTimerRef.current = null;
-    }
+  const wrapperRef = useRef<HTMLSpanElement>(null);
+  const pinned = useRef(false);
+  const pointerDown = useRef(false);
+  const suppressFocus = useRef(false);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const [isOpen, setIsOpen] = useState(false);
+  const [portalRoot, setPortalRoot] = useState<Element | null>(null);
+  const [position, setPosition] = useState({ left: 16, top: 16, maxHeight: 400, ready: false });
+  useLayoutEffect(() => {
+    setPortalRoot(triggerRef.current?.closest("#assistant-conversation") ?? document.body);
   }, []);
 
-  const openPreview = useCallback(() => {
+  const cancelClose = useCallback(() => clearTimeout(closeTimer.current), []);
+  const close = useCallback((restoreFocus = false) => {
+    if (changingPopover) return;
     cancelClose();
-    setPosition((current) => ({ ...current, ready: false }));
-    setIsOpen(true);
-  }, [cancelClose]);
-
-  const closePreview = useCallback(() => {
-    cancelClose();
+    ignoreHoverUntil = Date.now() + 300;
+    pinned.current = false;
+    changingPopover = true;
+    try { previewRef.current?.hidePopover(); } finally { changingPopover = false; }
     setIsOpen(false);
+    if (restoreFocus) {
+      suppressFocus.current = true;
+      triggerRef.current?.focus({ preventScroll: true });
+      suppressFocus.current = false;
+    }
   }, [cancelClose]);
-
-  const scheduleClose = useCallback(() => {
+  const open = () => {
     cancelClose();
-    closeTimerRef.current = window.setTimeout(() => setIsOpen(false), 100);
-  }, [cancelClose]);
-
-  const updatePosition = useCallback(() => {
-    const trigger = triggerRef.current;
-    const preview = previewRef.current;
-
-    if (!trigger || !preview) return;
-
-    const triggerRect = trigger.getBoundingClientRect();
-    const previewRect = preview.getBoundingClientRect();
-    const maxLeft = Math.max(VIEWPORT_GUTTER, window.innerWidth - previewRect.width - VIEWPORT_GUTTER);
-    const left = Math.min(Math.max(VIEWPORT_GUTTER, triggerRect.left), maxLeft);
-    const fitsBelow = triggerRect.bottom + PREVIEW_GAP + previewRect.height <= window.innerHeight - VIEWPORT_GUTTER;
-    const top = fitsBelow
-      ? triggerRect.bottom + PREVIEW_GAP
-      : Math.max(VIEWPORT_GUTTER, triggerRect.top - previewRect.height - PREVIEW_GAP);
-
-    setPosition({ left, top, ready: true });
-  }, []);
+    if (changingPopover) return;
+    if (previewRef.current?.matches(":popover-open")) return;
+    setPosition((current) => ({ ...current, ready: false }));
+    // Keep one card open and guard focus restoration during native transitions.
+    dismissEntityPreviews();
+    changingPopover = true;
+    try { previewRef.current?.showPopover(); } finally { changingPopover = false; }
+    setIsOpen(true);
+  };
+  const scheduleClose = () => {
+    cancelClose();
+    closeTimer.current = setTimeout(() => {
+      if (!pinned.current && !wrapperRef.current?.contains(document.activeElement) && !previewRef.current?.contains(document.activeElement)) close();
+    }, 180);
+  };
 
   useLayoutEffect(() => {
     if (!isOpen) return;
-
-    updatePosition();
-    window.addEventListener("resize", updatePosition);
-    window.addEventListener("scroll", updatePosition, true);
-
-    return () => {
-      window.removeEventListener("resize", updatePosition);
-      window.removeEventListener("scroll", updatePosition, true);
+    const positionPreview = () => {
+      const trigger = triggerRef.current;
+      const card = previewRef.current;
+      if (!trigger || !card) return;
+      const viewport = window.visualViewport;
+      const width = viewport?.width ?? window.innerWidth;
+      const height = viewport?.height ?? window.innerHeight;
+      const originTop = viewport?.offsetTop ?? 0;
+      const originLeft = viewport?.offsetLeft ?? 0;
+      const rect = trigger.getBoundingClientRect();
+      const cardHeight = Math.min(card.scrollHeight + 2, height - 32);
+      const left = Math.max(originLeft + 16, Math.min(rect.left, originLeft + width - card.offsetWidth - 16));
+      const below = rect.bottom + 8;
+      const top = below + cardHeight <= originTop + height - 16 ? below : Math.max(originTop + 16, rect.top - cardHeight - 8);
+      setPosition({ left, top, maxHeight: height - 32, ready: true });
     };
-  }, [isOpen, updatePosition]);
+    positionPreview();
+    const observer = new ResizeObserver(positionPreview);
+    if (previewRef.current) observer.observe(previewRef.current);
+    window.addEventListener("resize", positionPreview);
+    const onScroll = (event: Event) => { if (!previewRef.current?.contains(event.target as Node)) positionPreview(); };
+    window.addEventListener("scroll", onScroll, true);
+    window.visualViewport?.addEventListener("resize", positionPreview);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", positionPreview);
+      window.removeEventListener("scroll", onScroll, true);
+      window.visualViewport?.removeEventListener("resize", positionPreview);
+    };
+  }, [isOpen, close]);
 
   useEffect(() => {
     if (!isOpen) return;
-
-    const handleOutsidePointer = (event: PointerEvent) => {
-      const target = event.target as Node;
-      if (!triggerRef.current?.contains(target) && !previewRef.current?.contains(target)) {
-        closePreview();
-      }
+    const escape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || event.isComposing) return;
+      event.preventDefault(); event.stopPropagation();
+      close(!!previewRef.current?.contains(document.activeElement));
     };
-
-    document.addEventListener("pointerdown", handleOutsidePointer);
-    return () => document.removeEventListener("pointerdown", handleOutsidePointer);
-  }, [closePreview, isOpen]);
-
+    const outside = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (!wrapperRef.current?.contains(target) && !previewRef.current?.contains(target)) close();
+    };
+    document.addEventListener("keydown", escape, true);
+    document.addEventListener("pointerdown", outside, true);
+    return () => {
+      document.removeEventListener("keydown", escape, true);
+      document.removeEventListener("pointerdown", outside, true);
+    };
+  }, [isOpen, close]);
   useEffect(() => () => cancelClose(), [cancelClose]);
 
-  return (
-    <span className="entity-preview" onPointerEnter={openPreview} onPointerLeave={scheduleClose}>
-      <button
-        ref={triggerRef}
-        className="chip"
-        type="button"
-        aria-expanded={isOpen}
-        aria-controls={id}
-        onClick={() => setIsOpen((open) => !open)}
-        onFocus={openPreview}
-        onBlur={scheduleClose}
-        onKeyDown={(event) => {
-          if (event.key === "Escape") {
-            event.preventDefault();
-            closePreview();
-          }
-        }}
-      >
-        {label}
-      </button>
-
-      {isOpen
-        ? createPortal(
-            <span
-              ref={previewRef}
-              className="hover-card"
-              id={id}
-              role="tooltip"
-              data-ready={position.ready}
-              style={{ left: position.left, top: position.top }}
-              onPointerEnter={cancelClose}
-              onPointerLeave={scheduleClose}
-            >
-              {children}
-            </span>,
-            document.body,
-          )
-        : null}
-    </span>
-  );
+  return <span ref={wrapperRef} className={`entity-preview${inline ? " entity-inline" : ""}`}
+    onPointerEnter={(event) => { if (event.pointerType === "mouse" && Date.now() > ignoreHoverUntil) open(); }} onPointerLeave={scheduleClose}
+    onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget) && !previewRef.current?.contains(event.relatedTarget)) close(); }}>
+    <button ref={triggerRef} className={inline ? "entity-text-trigger" : "chip"} type="button"
+      aria-label={`${name} details`} aria-haspopup="dialog" aria-expanded={isOpen} aria-controls={id}
+      onPointerDown={() => { pointerDown.current = true; }}
+      onFocus={() => { if (!pointerDown.current && !suppressFocus.current && !changingPopover) {
+        window.requestAnimationFrame(() => { if (document.activeElement === triggerRef.current) open(); });
+      } }}
+      onClick={() => {
+        pointerDown.current = false;
+        if (pinned.current && isOpen) { close(); return; }
+        pinned.current = true; open(); window.requestAnimationFrame(() => { if (previewRef.current?.matches(":popover-open")) previewRef.current.focus({ preventScroll: true }); });
+      }}
+      onKeyDown={(event) => { if (event.key === "ArrowDown") { event.preventDefault(); pinned.current = true; open(); window.requestAnimationFrame(() => { if (previewRef.current?.matches(":popover-open")) previewRef.current.focus({ preventScroll: true }); }); } }}>
+      {label}
+    </button>
+    {portalRoot && createPortal(<span ref={previewRef} id={id} className="hover-card entity-card" popover="manual" role="dialog" tabIndex={-1}
+      aria-label={`${name} details`} aria-describedby={`${id}-content`} data-ready={position.ready}
+      style={{ left: position.left, top: position.top, maxHeight: position.maxHeight }}
+      onToggle={(event) => { const openNow = (event.nativeEvent as ToggleEvent).newState === "open"; setIsOpen(openNow); if (!openNow) pinned.current = false; }}
+      onPointerEnter={cancelClose} onPointerLeave={scheduleClose}>
+      <button type="button" className="preview-close" aria-label={`Close ${name} details`} onClick={() => close(true)}><X size={16} aria-hidden="true" /></button>
+      <span id={`${id}-content`} className="preview-content">{children}</span>
+    </span>, portalRoot)}
+  </span>;
 }

@@ -1,5 +1,6 @@
 import { streamAnswer } from "../mock/streamAnswer";
 import type { CoachingCard, StreamEvent } from "../mock/types";
+import { describeEntity, entities } from "./entities";
 
 export type ChatMessage = {
   id: string;
@@ -20,7 +21,7 @@ export type ConversationState = {
 };
 
 export const DEMO_FOLLOWUP_NOTICE =
-  "Follow-ups use guided demo responses based on this assessment.";
+  "Follow-ups use guided demo responses from this assessment and fictional workspace context.";
 
 export const FOLLOWUP_PROMPTS = [
   "What supports the stakeholder-discovery concern?",
@@ -44,6 +45,16 @@ export function getDemoReply(prompt: string, messages: ChatMessage[]): DemoReply
   if (/transcript|recording|playback|timestamp|which (three |3 )?calls|call (link|id)|full (call|source)/.test(question)) {
     return { text: "This demo includes three evidence snippets from the six-call assessment, but no individual call records, transcripts, recordings, or timestamps. I can explain the supplied evidence or help phrase the next coaching question." };
   }
+
+  const mentionedEntity = Object.values(entities).find((entity) => question.includes(entity.name.toLowerCase()) || question.includes(entity.name.split(" ")[0].toLowerCase()));
+  if (mentionedEntity && /details|tell me about|who is|what about|context|profile|overview of|lena|didi|percepto/.test(question)) {
+    if (/score|evidence|performance|how is|how.*doing|compare/.test(question) && mentionedEntity.id !== "marcus") {
+      return { label: "Demo context", text: `The supplied assessment only scores Marcus Bell. I can show ${mentionedEntity.name}'s workspace context, but there is no scored assessment or call evidence for them in this demo.\n\n${describeEntity(mentionedEntity)}` };
+    }
+    return { label: "Demo context", text: describeEntity(mentionedEntity) };
+  }
+
+
 
   if (/rubric|out of|score.*(calculated|mean)|scoring|scale|benchmark|trend|compared|previous quarter/.test(question)) {
     return { text: `The supplied card gives these scores: ${scoreSummary}. It does not provide a scoring scale, calculation method, benchmark, or prior-period data. I can explain the evidence alongside each score.` };
@@ -90,7 +101,7 @@ export function getDemoReply(prompt: string, messages: ChatMessage[]): DemoReply
     return { text: originalAnswer || card.summary };
   }
 
-  return { text: "I can help with Marcus's supplied six-call assessment: the three skills, supporting evidence, or a question for the next Brookfield call. This guided demo does not generate replies outside those topics. Try asking what supports the stakeholder-discovery concern." };
+  return { text: "I can help with Marcus's supplied six-call assessment: the three skills, supporting evidence, or a question for the next Brookfield call. I can also show workspace context for Lena Ortiz, Didi Rao, Brookfield, and Percepto. This guided demo does not generate replies outside those topics." };
 }
 
 /** Owned by App, independently of whether either conversation surface is visible. */
