@@ -2,9 +2,9 @@ import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type 
 import { X } from "lucide-react";
 import { createPortal } from "react-dom";
 
-// Removing a card can expose another name under the stationary pointer.
-// Avoid immediately opening that unrelated card after an explicit dismissal.
-let ignoreHoverUntil = 0;
+// Explicit dismissal may uncover another trigger beneath a stationary pointer.
+// Re-arm hover on real pointer movement, never with a global timed lockout.
+let hoverNeedsMovement = false;
 let changingPopover = false;
 
 export function dismissEntityPreviews() {
@@ -31,10 +31,11 @@ export function EntityPreview({ name, label, children, inline = false }: { name:
   }, []);
 
   const cancelClose = useCallback(() => clearTimeout(closeTimer.current), []);
-  const close = useCallback((restoreFocus = false) => {
+  const close = useCallback((restoreFocus = false, explicit = true) => {
     if (changingPopover) return;
     cancelClose();
-    ignoreHoverUntil = Date.now() + 300;
+    if (!previewRef.current?.matches(":popover-open")) return;
+    if (explicit) hoverNeedsMovement = true;
     pinned.current = false;
     changingPopover = true;
     try { previewRef.current?.hidePopover(); } finally { changingPopover = false; }
@@ -59,7 +60,7 @@ export function EntityPreview({ name, label, children, inline = false }: { name:
   const scheduleClose = () => {
     cancelClose();
     closeTimer.current = setTimeout(() => {
-      if (!pinned.current && !wrapperRef.current?.contains(document.activeElement) && !previewRef.current?.contains(document.activeElement)) close();
+      if (!pinned.current && !wrapperRef.current?.contains(document.activeElement) && !previewRef.current?.contains(document.activeElement)) close(false, false);
     }, 180);
   };
 
@@ -117,8 +118,13 @@ export function EntityPreview({ name, label, children, inline = false }: { name:
   useEffect(() => () => cancelClose(), [cancelClose]);
 
   return <span ref={wrapperRef} className={`entity-preview${inline ? " entity-inline" : ""}`}
-    onPointerEnter={(event) => { if (event.pointerType === "mouse" && Date.now() > ignoreHoverUntil) open(); }} onPointerLeave={scheduleClose}
-    onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget) && !previewRef.current?.contains(event.relatedTarget)) close(); }}>
+    onPointerEnter={(event) => { if (event.pointerType === "mouse" && !hoverNeedsMovement) open(); }}
+    onPointerMove={(event) => {
+      if (event.pointerType === "mouse" && (event.movementX !== 0 || event.movementY !== 0)) {
+        hoverNeedsMovement = false; open();
+      }
+    }} onPointerLeave={scheduleClose}
+    onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget) && !previewRef.current?.contains(event.relatedTarget)) close(false, false); }}>
     <button ref={triggerRef} className={inline ? "entity-text-trigger" : "chip"} type="button"
       aria-label={`${name} details`} aria-haspopup="dialog" aria-expanded={isOpen} aria-controls={id}
       onPointerDown={() => { pointerDown.current = true; }}
@@ -136,7 +142,7 @@ export function EntityPreview({ name, label, children, inline = false }: { name:
     {portalRoot && createPortal(<span ref={previewRef} id={id} className="hover-card entity-card" popover="manual" role="dialog" tabIndex={-1}
       aria-label={`${name} details`} aria-describedby={`${id}-content`} data-ready={position.ready}
       style={{ left: position.left, top: position.top, maxHeight: position.maxHeight }}
-      onToggle={(event) => { const openNow = (event.nativeEvent as ToggleEvent).newState === "open"; setIsOpen(openNow); if (!openNow) pinned.current = false; }}
+      onToggle={(event) => { const openNow = (event.nativeEvent as ToggleEvent).newState === "open"; setIsOpen(openNow); if (!openNow) { pinned.current = false; cancelClose(); } }}
       onPointerEnter={cancelClose} onPointerLeave={scheduleClose}>
       <button type="button" className="preview-close" aria-label={`Close ${name} details`} onClick={() => close(true)}><X size={16} aria-hidden="true" /></button>
       <span id={`${id}-content`} className="preview-content">{children}</span>

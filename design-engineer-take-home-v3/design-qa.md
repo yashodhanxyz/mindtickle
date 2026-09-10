@@ -6,6 +6,12 @@ Both routes passed at 1440 × 900, 390 × 844, and 320 × 568 CSS pixels. All fi
 
 The original and updated host captures were opened together at the same 1256 × 1204 viewport and resumed state. Existing font, avatar, tokens, card treatment, neutral colors, and icon family remain consistent. Intentional differences are peer chips, a wider card, next step, provenance, close control, and focus moving into the dialog. Desktop/mobile captures confirm fixed header/composer, readable body text, score alignment, and responsive wrapping. No unresolved visual defect was identified in the inspected states. Accessibility limits are explicitly recorded in the linked report; this is not a full conformance certification.
 
+## Hover sequence regression — 10 September 2026
+
+The shared 300 ms hover lockout could be restarted by a delayed close from an already-replaced card. Entering the next name during that window produced no preview. Removed the timed lockout, cancel pending close timers when a native popover closes, and ignore close requests for already-closed cards. Explicit dismissal waits only for real pointer movement before rearming hover; ordinary leave/blur does not suppress other names.
+
+Verified pointer traversal through Marcus → Lena → Didi → Lena → Marcus, and Brookfield → Percepto → Brookfield → Percepto. Each step showed exactly the expected card, and the final card remained visible after earlier close timers would have elapsed. Browser automation used native pointer drags without clicking a name to exercise entry/movement/leave; a physical mouse-only pass remains useful. Keyboard Arrow Down, Tab to close, Escape restoration, and chat-preview Escape were also checked. All 12 tests and the production build pass.
+
 ---
 
 ## Historical QA for the earlier layout-switch version
