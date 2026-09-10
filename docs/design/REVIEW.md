@@ -2,6 +2,8 @@
 
 10 September 2026 · Design exploration and review · App implementation pending
 
+**Superseded direction:** the user subsequently requested persistent back-and-forth conversation and proposed floating chat and a true third column. Read the [current conversational research and directions](../research/persistent-conversation-directions-2026-09-10.md). The all-modal, single-answer proposals below remain historical exploration; they are not the active implementation brief.
+
 All three concepts preserve Aria's existing visual language and the complete supplied answer. They differ in where Jordan reads the answer and how evidence is inspected. The [detailed specification](three-refined-options-2026-09-10.md) contains desktop/mobile state storyboards, exact data, motion, accessibility, implementation boundaries, and a requirement-by-requirement README matrix.
 
 ## Comparison

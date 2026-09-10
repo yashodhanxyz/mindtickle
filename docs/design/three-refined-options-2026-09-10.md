@@ -2,6 +2,8 @@
 
 Date: 10 September 2026. **Design proposals, reviewed against the supplied contract; not implemented or approved.**
 
+**Superseded assumptions:** the user now wants persistent conversation, including follow-up input, and is exploring floating chat and a genuine third column. The [current research brief](../research/persistent-conversation-directions-2026-09-10.md) supersedes this document's no-composer, all-modal, fresh-on-reopen, and no-host-reflow choices. Those were design decisions, not README restrictions. The exact initial mock data and required accessibility behaviours remain relevant.
+
 This document develops all three directions to the same standard. The task is to help Jordan understand Marcus's discovery-call performance and identify what to coach next. It is one post-invocation answer inside the existing Aria Sales Hub, not a new assistant product.
 
 ## Authority and evidence

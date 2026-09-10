@@ -2,6 +2,8 @@
 
 Research date: 10 September 2026. Status: research and design recommendations; no option has been approved for implementation.
 
+Current direction: [persistent conversation research](persistent-conversation-directions-2026-09-10.md) follows the user's request for back-and-forth AI chat in a floating window or true third column. It supersedes the focused-brief preference and no-follow-up recommendation below. Earlier source observations remain research evidence, not restrictions on the new direction.
+
 Follow-up: [the refined three-option review](../design/three-refined-options-2026-09-10.md) develops all three directions. It corrects one overly restrictive interpretation below: a simultaneous host task supports a multitasking rationale, but a modal side drawer can also be justified as a predictable tall reading area. The source observations remain unchanged; the later design review supersedes the option-selection recommendation in this research note.
 
 ## Decision supported by this research
