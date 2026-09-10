@@ -8,7 +8,7 @@
  */
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { CommandMenu, commandKey } from "./CommandMenu";
-import { Sparkles, X } from "lucide-react";
+import { Menu, Sparkles, X } from "lucide-react";
 import { ConversationHistory, HistoryDialog, HistoryButton } from "./ConversationHistory";
 import { AssistantExperience } from "./AssistantExperience";
 import { useConversation } from "./useConversation";
@@ -30,6 +30,8 @@ export function App({ layout }: { layout: AssistantLayout }) {
   const [presentation, setPresentation] = useState<"closed" | "open" | "minimized">("closed");
   const [focusRequest, setFocusRequest] = useState({ sequence: 0, target: "heading" as "heading" | "composer" });
   const [sidebarIsCompact, setSidebarIsCompact] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const mobileMenuRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLInputElement>(null);
   const resumeRef = useRef<HTMLButtonElement>(null);
   const minimizedRef = useRef<HTMLButtonElement>(null);
@@ -42,6 +44,21 @@ export function App({ layout }: { layout: AssistantLayout }) {
   const conversationViewport = { ...viewport, isMobile: viewport.isMobile || (layout === "column" && viewport.width < 1100) };
   const assistantIsOpen = presentation === "open";
   const modalIsOpen = assistantIsOpen && conversationViewport.isMobile;
+
+  const closeMobileMenu = () => {
+    mobileMenuRef.current?.close();
+    setMobileMenuOpen(false);
+  };
+  useEffect(() => {
+    const dialog = mobileMenuRef.current;
+    if (!viewport.isMobile || !mobileMenuOpen) { dialog?.close(); return; }
+    dismissEntityPreviews();
+    dialog?.showModal();
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { dialog?.close(); document.body.style.overflow = previous; };
+  }, [mobileMenuOpen, viewport.isMobile]);
+  useEffect(() => { if (!viewport.isMobile) setMobileMenuOpen(false); }, [viewport.isMobile]);
 
   const invokeAssistant = () => {
     dismissEntityPreviews();
@@ -94,6 +111,7 @@ export function App({ layout }: { layout: AssistantLayout }) {
   };
 
   const openThread = (id?: string) => {
+    closeMobileMenu();
     dismissEntityPreviews();
     if (id) conversation.library.select(id); else conversation.library.create();
     setHistoryOpen(false); setHasOpened(true); setPresentation("open");
@@ -119,6 +137,7 @@ export function App({ layout }: { layout: AssistantLayout }) {
     onNew: () => openThread(),
     onDeleted: (active: boolean) => {
       if (!active) return;
+      closeMobileMenu();
       setHistoryOpen(false);
       setHasOpened(true);
       setPresentation("open");
@@ -127,17 +146,13 @@ export function App({ layout }: { layout: AssistantLayout }) {
     },
   };
 
-  return (
-    <div className={`app-shell${sidebarIsCompact ? " sidebar-compact" : ""}${assistantIsOpen && layout === "column" && !conversationViewport.isMobile ? " column-open" : ""}`}
-      style={{ '--visual-height': `${viewport.height}px`, '--visual-top': `${viewport.top}px` } as CSSProperties}>
-      <span className="sr-only" role="status">{workspaceNotice}</span>
-      <aside className="sidebar" aria-label="Primary" inert={modalIsOpen}>
+  const sidebarContent = <>
         <div className="brand-row">
-          <a className="brand" href="#top" aria-label="Aria Sales Hub home">
+          <a className="brand" href="#top" aria-label="Aria Sales Hub home" onClick={closeMobileMenu}>
             <img src="/aria-logo.png" alt="" width={26} height={26} />
             <span className="nav-label">Aria</span>
           </a>
-          <button
+          {viewport.isMobile ? <button type="button" className="chat-icon-button mobile-menu-close" aria-label="Close menu" onClick={closeMobileMenu}><X size={20} /></button> : <button
             className="sidebar-toggle"
             type="button"
             aria-label={sidebarIsCompact ? "Expand sidebar" : "Compact sidebar"}
@@ -146,7 +161,7 @@ export function App({ layout }: { layout: AssistantLayout }) {
             onClick={() => setSidebarIsCompact((compact) => !compact)}
           >
             {sidebarIsCompact ? <Icons.panelOpen data-icon="inline-only" /> : <Icons.panelClose data-icon="inline-only" />}
-          </button>
+          </button>}
         </div>
 
         <button className="sidebar-search" type="button" aria-label="Search commands and conversations" aria-keyshortcuts="Meta+K Control+K" onClick={openCommands}>
@@ -177,7 +192,30 @@ export function App({ layout }: { layout: AssistantLayout }) {
             </span>
           </div>
         </div>
-      </aside>
+  </>;
+
+  return (
+    <div className={`app-shell${sidebarIsCompact && !viewport.isMobile ? " sidebar-compact" : ""}${assistantIsOpen && layout === "column" && !conversationViewport.isMobile ? " column-open" : ""}`}
+      style={{ '--visual-height': `${viewport.height}px`, '--visual-top': `${viewport.top}px` } as CSSProperties}>
+      <span className="sr-only" role="status">{workspaceNotice}</span>
+      {viewport.isMobile ? <>
+        <header className="mobile-topbar" inert={modalIsOpen}>
+          <button type="button" className="chat-icon-button" aria-label="Open menu" aria-haspopup="dialog" aria-expanded={mobileMenuOpen} aria-controls="mobile-navigation" onClick={() => setMobileMenuOpen(true)}><Menu size={22} /></button>
+          <a className="brand" href="#top" aria-label="Aria Sales Hub home"><img src="/aria-logo.png" alt="" width={26} height={26}/><span>Aria</span></a>
+        </header>
+        <dialog ref={mobileMenuRef} id="mobile-navigation" className="mobile-navigation" aria-label="Navigation and conversations"
+          onCancel={event => {event.preventDefault(); event.stopPropagation(); closeMobileMenu();}}
+          onClick={event => {if (event.target === event.currentTarget) {const rect=event.currentTarget.getBoundingClientRect(); if(event.clientX > rect.right || event.clientX < rect.left || event.clientY < rect.top || event.clientY > rect.bottom) closeMobileMenu();}}}
+          onKeyDown={event => {
+            if (event.key === 'Escape') {event.preventDefault();event.stopPropagation();closeMobileMenu();}
+            if (event.key !== 'Tab') return;
+            const items=Array.from(event.currentTarget.querySelectorAll<HTMLElement>('a[href],button:not(:disabled),input')).filter(el=>el.getClientRects().length>0 && !el.closest('dialog:not([open])'));
+            if(event.shiftKey && document.activeElement===items[0]) {event.preventDefault();items.at(-1)?.focus();}
+            else if(!event.shiftKey && document.activeElement===items.at(-1)) {event.preventDefault();items[0]?.focus();}
+          }}>
+          <div className="sidebar mobile-sidebar">{sidebarContent}</div>
+        </dialog>
+      </> : <aside className="sidebar" aria-label="Primary" inert={modalIsOpen}>{sidebarContent}</aside>}
 
       <main className="main" id="top" inert={modalIsOpen}>
         <div className="main-inner">

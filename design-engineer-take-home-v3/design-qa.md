@@ -234,3 +234,11 @@ This follow-up supersedes earlier persistence and mobile-integration limitations
 - No physical-phone keyboard or screen-reader certification is claimed. The local change journal has no compaction and is intended for assignment-scale use.
 
 **Result: scoped fixes verified; device-specific verification remains a stated limitation.**
+
+## Mobile hamburger navigation — 11 September 2026
+
+The mobile header now shows a 44 px hamburger action and Aria branding. A native modal drawer reuses desktop sidebar content: search, host navigation, new/saved conversations, Help/Settings context, and Jordan's profile. Search is a nested modal so Escape returns to the same search button; a second Escape closes the drawer and restores hamburger focus. Opening a chat closes the drawer before focusing its composer. Drawer motion is disabled for reduced motion.
+
+Verified in responsive preview: 390 × 844 visual review; 320 × 568 drawer (280 px wide, scrollable profile content, no page overflow); search dismissal and focus return; existing conversation selection on floating; new conversation on column, retaining Close-only chat controls. Compared old/new 390 px headers together; content styling and spacing are retained. Desktop continues to use the existing sidebar. Physical-phone and screen-reader testing remain unclaimed. All 25 existing tests and production build pass.
+
+Screenshots: [header](../docs/design/review-fixes/mobile-menu/topbar.jpg), [drawer](../docs/design/review-fixes/mobile-menu/drawer.jpg).

@@ -260,3 +260,28 @@
   .shortcut-list { overflow-y: auto; min-height: 0; }
   .history-edit { overflow-y: auto; }
 }
+
+/* Mobile navigation shares the desktop sidebar content and conversation actions. */
+.mobile-topbar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 12px; padding: max(10px, env(safe-area-inset-top)) 16px 10px; background: var(--sidebar); border-bottom: 1px solid var(--sidebar-border); }
+.mobile-topbar .chat-icon-button { width: 44px; height: 44px; }
+.mobile-topbar .brand { margin: 0; }
+.mobile-navigation { margin: 0; padding: 0; position: fixed; inset: var(--visual-top, 0px) auto auto 0; width: min(320px, calc(100vw - 40px)); max-width: none; height: min(100dvh, var(--visual-height, 100dvh)); max-height: none; border: 0; border-right: 1px solid var(--sidebar-border); background: var(--sidebar); color: var(--foreground); box-shadow: var(--shadow-lg); overflow: hidden; }
+.mobile-navigation::backdrop { background: rgb(0 0 0 / .28); }
+.mobile-navigation[open] { animation: mobile-navigation-enter var(--duration-base) var(--ease-out); }
+@keyframes mobile-navigation-enter { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .mobile-navigation[open] { animation: none; } }
+@media (max-width: 760px) {
+  .mobile-navigation .mobile-sidebar { position: static; height: 100%; flex-direction: column; align-items: stretch; gap: 4px; padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)); border: 0; overflow-y: auto; }
+  .mobile-sidebar .brand-row { display: flex; flex: none; align-items: center; justify-content: space-between; padding-bottom: 8px; }
+  .mobile-sidebar .brand { margin: 0; padding: 0 8px; }
+  .mobile-sidebar .sidebar-search { width: auto; height: 44px; margin: 0 0 8px; padding: 0 12px; justify-content: flex-start; border: 1px solid var(--input); background: var(--background); }
+  .mobile-sidebar .sidebar-search .nav-label { display: inline; }
+  .mobile-sidebar .nav-group { display: grid; flex: none; }
+  .mobile-sidebar .nav-item { min-height: 36px; }
+  .mobile-sidebar > .conversation-history { display: flex; flex: 1 0 180px; min-height: 180px; }
+  .mobile-sidebar .history-launcher { display: none; }
+  .mobile-sidebar .sidebar-foot { margin-top: auto; display: grid; flex: none; padding-top: 12px; }
+  .mobile-sidebar .sidebar-foot .nav-item { display: flex; }
+  .mobile-sidebar .user-row { padding: 8px; }
+  .mobile-sidebar .user-row .who { display: grid; }
+}
