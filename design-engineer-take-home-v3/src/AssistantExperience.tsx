@@ -1,6 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
-import { ArrowDown, ArrowUp, ChevronDown, LoaderCircle, Minus, X, Plus } from "lucide-react";
-import { HistoryButton } from "./ConversationHistory";
+import { ArrowDown, ArrowUp, ChevronDown, LoaderCircle, Minus, X } from "lucide-react";
 import { ASSESSMENT_PROMPT } from "./conversation";
 import { EntityMention, EntityText } from "./EntityMention";
 import type { CoachingCard as CoachingCardData } from "../mock/types";
@@ -14,8 +13,6 @@ type Props = {
   layout: "floating" | "column";
   onDismiss: () => void;
   onMinimize: () => void;
-  onHistory: () => void;
-  onNew: () => void;
   viewport: ReturnType<typeof useAssistantViewport>;
   focusRequest: { sequence: number; target: "heading" | "composer" };
 };
@@ -40,7 +37,7 @@ function CoachingCard({ card, expanded, onToggle }: { card: CoachingCardData; ex
   </article>;
 }
 
-export function AssistantExperience({ conversation, active, layout, onDismiss, onMinimize, onHistory, onNew, viewport, focusRequest }: Props) {
+export function AssistantExperience({ conversation, active, layout, onDismiss, onMinimize, viewport, focusRequest }: Props) {
   const { messages, draft, setDraft, busy, status, evidenceOpen, setEvidenceOpen, send } = conversation;
   const surfaceRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -172,9 +169,7 @@ export function AssistantExperience({ conversation, active, layout, onDismiss, o
       <img className="chat-brand" src="/aria-logo.png" alt="" width="32" height="32" />
       <div className="chat-heading"><h2 ref={headingRef} tabIndex={-1} id="assistant-title">AI Assistant</h2><p title={conversation.title}>{conversation.title}</p></div>
       <div className="chat-actions">
-        <HistoryButton onClick={onHistory} />
-        <button className="chat-icon-button" type="button" aria-label="New conversation" title="New conversation" onClick={onNew}><Plus size={18} aria-hidden="true" /></button>
-        {(layout === "floating" || viewport.isMobile) && <button className="chat-icon-button" type="button" aria-label="Minimize conversation" title="Minimize conversation" onClick={onMinimize}><Minus size={18} aria-hidden="true" /></button>}
+        <button className="chat-icon-button" type="button" aria-label="Minimize conversation" title="Minimize conversation" onClick={onMinimize}><Minus size={18} aria-hidden="true" /></button>
         <button className="chat-icon-button" type="button" aria-label="Close conversation" title="Close conversation (Escape)" onClick={onDismiss}><X size={18} aria-hidden="true" /></button>
       </div>
     </header>

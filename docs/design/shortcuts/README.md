@@ -4,7 +4,7 @@ The visible “AI conversations” sidebar heading is removed. The history dialo
 
 Search is now a real button opening a command menu. **Command K** or **Control K** toggles it. Type to filter actions or saved conversation titles, use Up/Down to select, and Enter to run. Commands create a conversation, open the current one, show history, adjust the desktop sidebar, or display the shortcut guide. The guide lists the actual application keys, including Escape, Tab, Enter, and Shift Enter; it does not claim extra global shortcuts for every action.
 
-On phones Search is available in the top bar. When chat covers that bar, Conversations → Search commands and shortcuts provides touch access. The desktop sidebar command is omitted on mobile. A rename/delete dialog is not interrupted by the global shortcut. No destructive action runs directly from the command menu.
+On phones Search is available in the top bar. When chat covers that bar, minimise or close it to reach Search or conversation history. Command/Control K also remains available while chatting. The desktop sidebar command is omitted on mobile. A rename/delete dialog is not interrupted by the global shortcut. No destructive action runs directly from the command menu.
 
 The menu uses the existing neutral surfaces, primary selection color, Inter font, rounded corners, and Lucide icons. A native modal dialog contains an editable combobox and listbox; input focus stays in the search field while `aria-activedescendant` identifies the selected result. This follows the [WAI-ARIA combobox keyboard guidance](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/). Escape closes only the menu and restores focus; Tab/Shift Tab stay inside. No animation or dependency was added.
 

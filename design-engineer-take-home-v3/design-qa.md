@@ -1,3 +1,9 @@
+# Current QA — simplified chat headers
+
+11 September 2026. Removed the New and Conversations buttons from both chat headers. Both now expose only Minimize and Close, including the desktop column. New/history remain available through the sidebar and command menu; on mobile, minimise or close chat to access the host controls. Verified both header button lists, minimise/restore, close/Escape focus return, and the TypeScript/production build. No conversation state or mock changes.
+
+---
+
 # Current QA — command menu and sidebar refinement
 
 10 September 2026. Removed the visible AI conversations heading and cleared the preview test pin. Search now opens a working Command K / Control K command menu with saved-chat search and a keyboard guide. Desktop and both mobile widths passed; 17 tests and the production build pass. [Review, visual evidence, checks, and limits](../docs/design/shortcuts/README.md).

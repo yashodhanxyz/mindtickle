@@ -215,7 +215,7 @@ export function App({ layout }: { layout: AssistantLayout }) {
       </div>
       </main>
 
-      <AssistantExperience key={conversation.id} conversation={conversation} onHistory={openHistory} onNew={() => openThread()} active={assistantIsOpen} layout={layout}
+      <AssistantExperience key={conversation.id} conversation={conversation} active={assistantIsOpen} layout={layout}
         onDismiss={dismissAssistant} onMinimize={minimizeAssistant} viewport={conversationViewport} focusRequest={focusRequest} />
 
       <HistoryDialog {...historyProps} open={historyOpen} onClose={() => setHistoryOpen(false)} />
