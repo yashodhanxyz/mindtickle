@@ -1,3 +1,9 @@
+# Current refinement — minimise only floating chat
+
+11 September 2026. The column header now has Close only, on desktop and mobile. Floating retains Minimize and Close. Column users close/resume to return to their workspace; drafts and history remain saved. Verified the column header in the browser and the TypeScript/production build.
+
+---
+
 # Current QA — simplified chat headers
 
 11 September 2026. Removed the New and Conversations buttons from both chat headers. Both now expose only Minimize and Close, including the desktop column. New/history remain available through the sidebar and command menu; on mobile, minimise or close chat to access the host controls. Verified both header button lists, minimise/restore, close/Escape focus return, and the TypeScript/production build. No conversation state or mock changes.

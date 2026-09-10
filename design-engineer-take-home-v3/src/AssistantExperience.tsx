@@ -169,7 +169,7 @@ export function AssistantExperience({ conversation, active, layout, onDismiss, o
       <img className="chat-brand" src="/aria-logo.png" alt="" width="32" height="32" />
       <div className="chat-heading"><h2 ref={headingRef} tabIndex={-1} id="assistant-title">AI Assistant</h2><p title={conversation.title}>{conversation.title}</p></div>
       <div className="chat-actions">
-        <button className="chat-icon-button" type="button" aria-label="Minimize conversation" title="Minimize conversation" onClick={onMinimize}><Minus size={18} aria-hidden="true" /></button>
+        {layout === "floating" && <button className="chat-icon-button" type="button" aria-label="Minimize conversation" title="Minimize conversation" onClick={onMinimize}><Minus size={18} aria-hidden="true" /></button>}
         <button className="chat-icon-button" type="button" aria-label="Close conversation" title="Close conversation (Escape)" onClick={onDismiss}><X size={18} aria-hidden="true" /></button>
       </div>
     </header>
