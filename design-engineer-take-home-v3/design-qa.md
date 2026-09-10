@@ -1,3 +1,15 @@
+# Current QA — multiple saved conversations
+
+10 September 2026. Both options passed the scoped conversation-history review. [Implementation, captures, tests, and limitations](../docs/design/conversation-history/README.md) supersede the historical session limits below.
+
+New, revisit, rename, pin/unpin, delete/cancel, drafts, reload, thread-specific streaming, evidence, and reading-position restoration were checked. Both routes passed desktop 1440 × 900 and mobile 390 × 844 / 320 × 568. Keyboard checks cover menus, nested Escape dismissal, focus restoration, mobile chat/history containment, and compact-sidebar history access. The latter initially hid overlay content through an overly broad selector; the selector is now scoped to the sidebar and the flow was rechecked.
+
+Before/after captures for each desktop option were opened together at 1440 × 900, completed Marcus answer with evidence collapsed and composer focused. Font, neutral surfaces, geometry, card, scores, and supplied logo remain consistent. Intentional additions are sidebar history, New/Conversations controls, and the thread title. Mobile captures show readable history and an unclipped empty-state heading. No unresolved visual defect was found in the inspected states.
+
+17 unit tests and the production/TypeScript build pass. Original assignment README and mock remain unchanged. Browser-only verification does not establish full WCAG conformance; screen-reader speech and physical phones remain untested.
+
+---
+
 # Current QA — separate pages and shared entity context
 
 10 September 2026. Reviewed with the Product Design workflow. **The separate-page implementation passes the scoped checks.** See [current QA, captures, and limitations](../docs/design/separate-pages/README.md) and [research](../docs/research/entity-context.md).

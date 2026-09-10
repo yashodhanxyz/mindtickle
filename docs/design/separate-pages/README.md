@@ -1,6 +1,6 @@
 # Separate option pages and shared quick views
 
-10 September 2026. Current implementation; older documents describe the mixed-layout version.
+10 September 2026. Historical integration report. [Conversation history](../conversation-history/README.md) supersedes the session and persistence limitations below; the entity-context findings remain relevant.
 
 ## Try it
 

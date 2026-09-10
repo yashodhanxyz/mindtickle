@@ -1,0 +1,42 @@
+[
+  {
+    "layout": "floating",
+    "empty": true,
+    "focus": "chat-draft",
+    "headingTop": 126,
+    "height": 844,
+    "historyOpen": false,
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "layout": "column",
+    "empty": true,
+    "focus": "chat-draft",
+    "headingTop": 126,
+    "height": 568,
+    "historyOpen": false,
+    "overflow": false,
+    "width": 320
+  },
+  {
+    "layout": "floating",
+    "empty": true,
+    "focus": "chat-draft",
+    "headingTop": 126,
+    "height": 568,
+    "historyOpen": false,
+    "overflow": false,
+    "width": 320
+  },
+  {
+    "layout": "column",
+    "empty": true,
+    "focus": "chat-draft",
+    "headingTop": 126,
+    "height": 844,
+    "historyOpen": false,
+    "overflow": false,
+    "width": 390
+  }
+]

@@ -8,6 +8,7 @@
  */
 import { useCallback, useRef, useState, type CSSProperties } from "react";
 import { Sparkles, X } from "lucide-react";
+import { ConversationHistory, HistoryDialog, HistoryButton } from "./ConversationHistory";
 import { AssistantExperience } from "./AssistantExperience";
 import { useConversation } from "./useConversation";
 import { useAssistantViewport } from "./useAssistantViewport";
@@ -31,7 +32,9 @@ export function App({ layout }: { layout: AssistantLayout }) {
   const triggerRef = useRef<HTMLInputElement>(null);
   const resumeRef = useRef<HTMLButtonElement>(null);
   const minimizedRef = useRef<HTMLButtonElement>(null);
-  const conversation = useConversation();
+  const conversation = useConversation(layout);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [hasOpened, setHasOpened] = useState(false);
   const viewport = useAssistantViewport();
   const conversationViewport = { ...viewport, isMobile: viewport.isMobile || (layout === "column" && viewport.width < 1100) };
   const assistantIsOpen = presentation === "open";
@@ -40,7 +43,8 @@ export function App({ layout }: { layout: AssistantLayout }) {
   const invokeAssistant = () => {
     dismissEntityPreviews();
     const target = conversation.hasStarted ? "composer" : "heading";
-    if (!conversation.hasStarted) conversation.send(DEFAULT_PROMPT);
+    if (!conversation.hasStarted && !conversation.draft.trim() && !hasOpened) conversation.send(DEFAULT_PROMPT);
+    setHasOpened(true);
     setPresentation("open");
     setFocusRequest((request) => ({ sequence: request.sequence + 1, target }));
   };
@@ -55,6 +59,27 @@ export function App({ layout }: { layout: AssistantLayout }) {
     dismissEntityPreviews();
     setPresentation("minimized");
     window.requestAnimationFrame(() => minimizedRef.current?.focus());
+  };
+
+  const openThread = (id?: string) => {
+    dismissEntityPreviews();
+    if (id) conversation.library.select(id); else conversation.library.create();
+    setHistoryOpen(false); setHasOpened(true); setPresentation("open");
+    setFocusRequest(request => ({ sequence: request.sequence + 1, target: "composer" }));
+  };
+  const openHistory = () => { dismissEntityPreviews(); setHistoryOpen(true); };
+  const historyProps = {
+    conversation,
+    onSelect: (id: string) => openThread(id),
+    onNew: () => openThread(),
+    onDeleted: (active: boolean) => {
+      if (!active) return;
+      setHistoryOpen(false);
+      setHasOpened(true);
+      setPresentation("open");
+      setFocusRequest(request => ({ sequence: request.sequence + 1, target: "composer" }));
+      requestAnimationFrame(() => document.querySelector<HTMLTextAreaElement>("#chat-draft")?.focus());
+    },
   };
 
   return (
@@ -90,6 +115,9 @@ export function App({ layout }: { layout: AssistantLayout }) {
           <span className="nav-item shell-context" data-label="Deals"><Icons.briefcase data-icon="inline-start" /><span className="nav-label">Deals</span></span>
           <span className="nav-item shell-context" data-label="Library"><Icons.library data-icon="inline-start" /><span className="nav-label">Library</span></span>
         </nav>
+
+        <ConversationHistory {...historyProps} />
+        <div className="history-launcher"><HistoryButton onClick={openHistory} /></div>
 
         <div className="sidebar-foot">
           <span className="nav-item shell-context" data-label="Help"><Icons.help data-icon="inline-start" /><span className="nav-label">Help</span></span>
@@ -154,7 +182,7 @@ export function App({ layout }: { layout: AssistantLayout }) {
         </div>
 
       <div className="assistant-entry" hidden={presentation !== "closed"}>
-      {conversation.hasStarted ? <button ref={resumeRef} className="resume-conversation" type="button" onClick={invokeAssistant} aria-controls="assistant-conversation" aria-expanded={assistantIsOpen}>
+      {conversation.hasStarted || hasOpened || conversation.draft.trim() ? <button ref={resumeRef} className="resume-conversation" type="button" onClick={invokeAssistant} aria-controls="assistant-conversation" aria-expanded={assistantIsOpen}>
         <Sparkles size={19} aria-hidden="true" />Resume conversation
       </button> : <form
         className="assistant-trigger"
@@ -172,12 +200,14 @@ export function App({ layout }: { layout: AssistantLayout }) {
       </div>
       </main>
 
-      <AssistantExperience conversation={conversation} active={assistantIsOpen} layout={layout}
+      <AssistantExperience key={conversation.id} conversation={conversation} onHistory={openHistory} onNew={() => openThread()} active={assistantIsOpen} layout={layout}
         onDismiss={dismissAssistant} onMinimize={minimizeAssistant} viewport={conversationViewport} focusRequest={focusRequest} />
+
+      <HistoryDialog {...historyProps} open={historyOpen} onClose={() => setHistoryOpen(false)} />
 
       {presentation === "minimized" && <div className="minimized-chat" onKeyDown={(event) => { if (event.key === "Escape") dismissAssistant(); }}>
         <button ref={minimizedRef} className="minimized-restore" type="button" onClick={invokeAssistant} aria-label="Restore AI Assistant conversation" aria-controls="assistant-conversation" aria-expanded={false}>
-          <img src="/aria-logo.png" alt="" width="28" height="28" /><span><strong>AI Assistant</strong><small>{conversation.busy ? "Preparing reply…" : "Marcus · Discovery calls"}</small></span>
+          <img src="/aria-logo.png" alt="" width="28" height="28" /><span><strong>AI Assistant</strong><small>{conversation.busy ? "Preparing reply…" : conversation.title}</small></span>
         </button>
         <button className="chat-icon-button" type="button" aria-label="Close AI Assistant" onClick={dismissAssistant}><X size={18} aria-hidden="true" /></button>
       </div>}

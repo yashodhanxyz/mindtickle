@@ -1,5 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
-import { ArrowDown, ArrowUp, ChevronDown, LoaderCircle, Minus, X } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronDown, LoaderCircle, Minus, X, Plus } from "lucide-react";
+import { HistoryButton } from "./ConversationHistory";
+import { ASSESSMENT_PROMPT } from "./conversation";
 import { EntityMention, EntityText } from "./EntityMention";
 import type { CoachingCard as CoachingCardData } from "../mock/types";
 import { DEMO_FOLLOWUP_NOTICE } from "./conversation";
@@ -12,6 +14,8 @@ type Props = {
   layout: "floating" | "column";
   onDismiss: () => void;
   onMinimize: () => void;
+  onHistory: () => void;
+  onNew: () => void;
   viewport: ReturnType<typeof useAssistantViewport>;
   focusRequest: { sequence: number; target: "heading" | "composer" };
 };
@@ -36,15 +40,15 @@ function CoachingCard({ card, expanded, onToggle }: { card: CoachingCardData; ex
   </article>;
 }
 
-export function AssistantExperience({ conversation, active, layout, onDismiss, onMinimize, viewport, focusRequest }: Props) {
+export function AssistantExperience({ conversation, active, layout, onDismiss, onMinimize, onHistory, onNew, viewport, focusRequest }: Props) {
   const { messages, draft, setDraft, busy, status, evidenceOpen, setEvidenceOpen, send } = conversation;
   const surfaceRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const followsLatest = useRef(true);
-  const scrollPosition = useRef(0);
+  const followsLatest = useRef(conversation.reading?.follow ?? true);
+  const scrollPosition = useRef(conversation.reading?.top ?? 0);
   const anchor = useRef<{ id: string; offset: number } | null>(null);
   const lastVisibleMessages = useRef(messages);
   const [hasNewReply, setHasNewReply] = useState(false);
@@ -54,6 +58,7 @@ export function AssistantExperience({ conversation, active, layout, onDismiss, o
     if (!scroll || !active) return;
     scrollPosition.current = scroll.scrollTop;
     followsLatest.current = scroll.scrollHeight - scroll.clientHeight - scroll.scrollTop < 40;
+    conversation.setReading({top: scroll.scrollTop, follow: followsLatest.current});
     if (followsLatest.current) setHasNewReply(false);
     const top = scroll.getBoundingClientRect().top;
     const message = Array.from(scroll.querySelectorAll<HTMLElement>("[data-message-id]")).find((item) => item.getBoundingClientRect().bottom > top);
@@ -70,6 +75,7 @@ export function AssistantExperience({ conversation, active, layout, onDismiss, o
   const restoreReadingPosition = () => {
     const scroll = scrollRef.current;
     if (!scroll) return;
+    if (!messages.length) { scroll.scrollTop = 0; return; }
     if (followsLatest.current) scroll.scrollTop = scroll.scrollHeight;
     else if (anchor.current) {
       const item = Array.from(scroll.querySelectorAll<HTMLElement>("[data-message-id]")).find((element) => element.dataset.messageId === anchor.current?.id);
@@ -164,8 +170,10 @@ export function AssistantExperience({ conversation, active, layout, onDismiss, o
     style={viewport.isMobile ? { "--visual-height": `${viewport.height}px`, "--visual-top": `${viewport.top}px` } as CSSProperties : undefined}>
     <header className="chat-header">
       <img className="chat-brand" src="/aria-logo.png" alt="" width="32" height="32" />
-      <div className="chat-heading"><h2 ref={headingRef} tabIndex={-1} id="assistant-title">AI Assistant</h2><p>Marcus · Discovery calls</p></div>
+      <div className="chat-heading"><h2 ref={headingRef} tabIndex={-1} id="assistant-title">AI Assistant</h2><p title={conversation.title}>{conversation.title}</p></div>
       <div className="chat-actions">
+        <HistoryButton onClick={onHistory} />
+        <button className="chat-icon-button" type="button" aria-label="New conversation" title="New conversation" onClick={onNew}><Plus size={18} aria-hidden="true" /></button>
         {(layout === "floating" || viewport.isMobile) && <button className="chat-icon-button" type="button" aria-label="Minimize conversation" title="Minimize conversation" onClick={onMinimize}><Minus size={18} aria-hidden="true" /></button>}
         <button className="chat-icon-button" type="button" aria-label="Close conversation" title="Close conversation (Escape)" onClick={onDismiss}><X size={18} aria-hidden="true" /></button>
       </div>
@@ -174,6 +182,7 @@ export function AssistantExperience({ conversation, active, layout, onDismiss, o
     <div className="transcript-wrap">
       <div ref={scrollRef} className="chat-transcript" role="region" aria-label="Conversation messages" tabIndex={0} onScroll={rememberPosition}>
         <div ref={contentRef} className="chat-messages">
+          {!conversation.hasStarted && <div className="chat-empty"><h3>What would you like to work on?</h3><p>Review coaching or prepare for a deal conversation.</p><div className="chat-starters">{[ASSESSMENT_PROMPT, "Tell me about Lena Ortiz", "Help me prepare for the next Brookfield call"].map(prompt => <button type="button" key={prompt} onClick={() => { if (send(prompt)) composerRef.current?.focus(); }}>{prompt}</button>)}</div></div>}
           {messages.map((message) => <div key={message.id} data-message-id={message.id} className={`chat-message message-${message.role}`}>
             {message.role === "user" ? <><span className="sr-only">You: </span><p><EntityText text={message.text} /></p></> : <>
               <img className="answer-avatar" src="/aria-logo.png" alt="" width="26" height="26" />

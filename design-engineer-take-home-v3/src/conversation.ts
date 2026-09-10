@@ -18,6 +18,7 @@ export type ConversationState = {
   status: string;
   hasStarted: boolean;
   evidenceOpen: boolean;
+  reading?: { top: number; follow: boolean };
 };
 
 export const DEMO_FOLLOWUP_NOTICE =
@@ -29,18 +30,18 @@ export const FOLLOWUP_PROMPTS = [
 ] as const;
 
 type DemoReply = Pick<ChatMessage, "text" | "label">;
-type AnswerStream = (prompt: string) => AsyncIterable<StreamEvent>;
+export const ASSESSMENT_PROMPT = "How is Marcus doing on discovery calls this quarter?";
+
+export type AnswerStream = (prompt: string) => AsyncIterable<StreamEvent>;
 
 /** A deliberately bounded prototype provider, separate from the fixed first answer. */
 export function getDemoReply(prompt: string, messages: ChatMessage[]): DemoReply {
   const card = messages.find((message) => message.card)?.card;
-  if (!card) {
-    return { text: "The assessment did not finish, so I don't have its coaching card to use for a follow-up. Reopen the page to try the initial assessment again." };
-  }
+
 
   const question = prompt.toLowerCase().replace(/[-–—]/g, " ");
   const lastReply = [...messages].reverse().find((message) => message.role === "assistant" && message.complete);
-  const scoreSummary = card.rows.map((row) => `${row.skill}: ${row.score}`).join("; ");
+
 
   if (/transcript|recording|playback|timestamp|which (three |3 )?calls|call (link|id)|full (call|source)/.test(question)) {
     return { text: "This demo includes three evidence snippets from the six-call assessment, but no individual call records, transcripts, recordings, or timestamps. I can explain the supplied evidence or help phrase the next coaching question." };
@@ -55,6 +56,12 @@ export function getDemoReply(prompt: string, messages: ChatMessage[]): DemoReply
   }
 
 
+
+  if (!card) {
+    if (/brookfield|phrase|wording/.test(question)) return { label: "Suggested wording", text: "Who else needs to validate the operational and legal readiness of this project?" };
+    return { text: "This guided demo can show workspace context for Marcus Bell, Lena Ortiz, Didi Rao, Brookfield, and Percepto. For scored coaching evidence, ask: How is Marcus doing on discovery calls this quarter? It does not generate replies outside those topics." };
+  }
+  const scoreSummary = card.rows.map((row) => `${row.skill}: ${row.score}`).join("; ");
 
   if (/rubric|out of|score.*(calculated|mean)|scoring|scale|benchmark|trend|compared|previous quarter/.test(question)) {
     return { text: `The supplied card gives these scores: ${scoreSummary}. It does not provide a scoring scale, calculation method, benchmark, or prior-period data. I can explain the evidence alongside each score.` };
@@ -105,13 +112,15 @@ export function getDemoReply(prompt: string, messages: ChatMessage[]): DemoReply
 }
 
 /** Owned by App, independently of whether either conversation surface is visible. */
-export function createConversationController(answerStream: AnswerStream = streamAnswer) {
-  let state: ConversationState = {
+export function createConversationController(answerStream: AnswerStream = streamAnswer, initial?: ConversationState) {
+  let disposed = false;
+  let state: ConversationState = initial ?? {
     messages: [], draft: "", busy: false, status: "", hasStarted: false, evidenceOpen: false,
   };
-  let nextId = 0;
+  let nextId = state.messages.reduce((max, message) => Math.max(max, Number(message.id.replace("message-", "")) || 0), 0);
   const listeners = new Set<() => void>();
   const update = (patch: Partial<ConversationState>) => {
+    if (disposed) return;
     state = { ...state, ...patch };
     listeners.forEach((listener) => listener());
   };
@@ -125,6 +134,7 @@ export function createConversationController(answerStream: AnswerStream = stream
         let text = "";
         let done = false;
         for await (const event of answerStream(prompt)) {
+          if (disposed) return;
           if (event.type === "status") update({ status: event.label });
           if (event.type === "text") {
             text += event.delta;
@@ -162,13 +172,15 @@ export function createConversationController(answerStream: AnswerStream = stream
       listeners.add(listener);
       return () => { listeners.delete(listener); };
     },
+    dispose() { disposed = true; listeners.clear(); },
+    setReading(reading: { top: number; follow: boolean }) { update({ reading }); },
     setDraft(draft: string) { update({ draft }); },
     setEvidenceOpen(evidenceOpen: boolean) { update({ evidenceOpen }); },
     send(text?: string): boolean {
       const prompt = (text ?? state.draft).trim();
-      if (!prompt || state.busy) return false;
+      if (!prompt || state.busy || disposed) return false;
       const history = state.messages;
-      const firstAnswer = !state.hasStarted;
+      const firstAnswer = prompt.toLowerCase() === ASSESSMENT_PROMPT.toLowerCase() && !state.messages.some((message) => message.card);
       const id = `message-${++nextId}`;
       const assistantId = `message-${++nextId}`;
       update({

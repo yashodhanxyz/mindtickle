@@ -72,9 +72,9 @@
 .minimized-chat { position: fixed; z-index: 60; bottom: 0; right: 24px; width: 280px; display: flex; align-items: center; gap: 6px; padding: 5px 8px; border: 1px solid var(--border); border-bottom: 0; border-radius: 12px 12px 0 0; background: var(--background); box-shadow: var(--shadow-lg); animation: card-reveal 140ms var(--ease-out); }
 .minimized-restore { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; min-height: 48px; padding: 5px; border: 0; border-radius: 6px; background: transparent; text-align: left; }
 .minimized-restore:hover { background: var(--secondary); }
-.minimized-restore span { display: grid; gap: 1px; }
+.minimized-restore span { display: grid; gap: 1px; min-width: 0; }
 .minimized-restore strong { font-size: 13px; font-weight: 600; }
-.minimized-restore small { color: var(--text-secondary); font-size: 11px; }
+.minimized-restore small { color: var(--text-secondary); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (min-width: 761px) {
   @container (max-width: 700px) {
     .greeting-row { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
@@ -134,4 +134,63 @@
 
 @media (prefers-reduced-motion: reduce) {
   .entity-card { transition: none; transform: none; }
+}
+
+/* Conversation history extends the existing navigation and neutral card family. */
+.sidebar { min-height: 0; }
+.conversation-history { display: flex; flex-direction: column; min-height: 0; flex: 1; padding: 16px 0 0; border-top: 1px solid var(--border); margin-top: 12px; }
+.history-heading { display: flex; justify-content: space-between; align-items: center; padding: 0 8px; }
+.history-heading h2 { font-size: 12px; color: var(--text-secondary); font-weight: 600; margin: 0 0 10px; }
+.history-new { display: flex; align-items: center; gap: 8px; min-height: 38px; border: 1px solid var(--border); background: var(--background); border-radius: 8px; padding: 8px 10px; text-align: left; font-size: 12px; }
+.history-new:hover, .history-more:hover { background: var(--secondary); }
+.history-list { overflow-y: auto; min-height: 0; flex: 1; padding: 5px 0; }
+.history-group h3 { font-size: 11px; color: var(--text-secondary); font-weight: 500; margin: 12px 8px 5px; }
+.history-row { display: flex; align-items: center; border-radius: 7px; min-width: 0; }
+.history-row.selected { background: var(--accent-muted); }
+.history-row:hover { background: var(--secondary); }
+.history-select { display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1; padding: 10px 7px; min-height: 40px; font-size: 12px; text-align: left; border: 0; background: transparent; }
+.history-select > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.history-select small { font-size: 10px; color: var(--text-secondary); margin-left: auto; }
+.history-more { flex: none; display: grid; place-items: center; width: 30px; height: 32px; border: 0; border-radius: 6px; background: transparent; color: var(--text-secondary); }
+.history-menu { position: fixed; inset: auto; margin: 0; width: 170px; padding: 5px; border: 1px solid var(--border); border-radius: 10px; background: var(--popover); color: var(--foreground); box-shadow: var(--shadow-lg); }
+.history-menu button { display: block; width: 100%; text-align: left; border: 0; border-radius: 5px; background: transparent; padding: 9px 12px; font-size: 13px; }
+.history-menu button:hover, .history-menu button:focus { background: var(--secondary); }
+.danger-text { color: #ae2431; }
+.history-empty, .history-storage { font-size: 11px; color: var(--text-secondary); line-height: 1.5; margin: 10px 8px; }
+.history-storage { flex: none; margin-bottom: 0; }
+.history-launcher { display: none; }
+.sidebar-compact .sidebar > .conversation-history { display: none; }
+.sidebar-compact .history-launcher { display: flex; justify-content: center; }
+.history-dialog, .history-edit { color: var(--foreground); background: var(--background); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-lg); padding: 24px; width: min(420px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); }
+.history-dialog::backdrop, .history-edit::backdrop { background: rgb(0 0 0 / .22); }
+.history-dialog { height: min(620px, calc(100dvh - 32px)); overflow: hidden; }
+.history-overlay-content { height: 100%; margin: 0; padding: 0; border: 0; }
+.history-overlay-content .history-heading h2 { font-size: 17px; color: var(--foreground); }
+.history-edit h2 { font-size: 19px; margin: 0 0 16px; }
+.history-edit p { font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+.history-edit label { display: grid; gap: 8px; font-size: 13px; }
+.history-edit input { min-width: 0; width: 100%; padding: 11px; border: 1px solid var(--border); border-radius: 8px; background: var(--background); }
+.history-edit-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; }
+.history-edit-actions button { padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--background); font-size: 13px; }
+.history-edit-actions .save-button { background: var(--primary); color: white; }
+.history-edit-actions .danger-button { background: #ae2431; color: white; }
+.history-edit-actions button:disabled { opacity: .5; }
+.chat-heading p { overflow: hidden; text-overflow: ellipsis; }
+.chat-empty { padding: 36px 8px; }
+.chat-empty h3 { font-size: 21px; line-height: 1.3; margin: 0 0 10px; }
+.chat-empty p { color: var(--text-secondary); font-size: 14px; }
+.chat-starters { display: grid; gap: 8px; margin-top: 24px; }
+.chat-starters button { padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--background); text-align: left; font-size: 13px; }
+.chat-starters button:hover { background: var(--secondary); }
+@media (max-width: 760px) {
+  .sidebar > .conversation-history { display: none; }
+  .sidebar .history-launcher { display: flex; margin-left: auto; }
+  .history-dialog { width: 100vw; height: 100dvh; max-height: 100dvh; max-width: 100vw; margin: 0; border-radius: 0; padding: 20px 16px; }
+  .history-select { min-height: 48px; font-size: 14px; }
+  .history-more { width: 40px; height: 40px; }
+  .history-new { min-height: 44px; font-size: 14px; }
+  .history-edit input { font-size: 16px; }
+  .chat-actions { gap: 0; }
+  .chat-icon-button { width: 32px; }
+  .chat-header { padding-left: 12px; padding-right: 8px; gap: 7px; }
 }
