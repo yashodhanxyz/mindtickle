@@ -48,6 +48,8 @@ export function AssistantExperience({ conversation, active, layout, onDismiss, o
   const scrollPosition = useRef(conversation.reading?.top ?? 0);
   const anchor = useRef<{ id: string; offset: number } | null>(null);
   const lastVisibleMessages = useRef(messages);
+  const messagesRef = useRef(messages);
+  messagesRef.current = messages;
   const [hasNewReply, setHasNewReply] = useState(false);
 
   const rememberPosition = () => {
@@ -72,7 +74,7 @@ export function AssistantExperience({ conversation, active, layout, onDismiss, o
   const restoreReadingPosition = () => {
     const scroll = scrollRef.current;
     if (!scroll) return;
-    if (!messages.length) { scroll.scrollTop = 0; return; }
+    if (!messagesRef.current.length) { scroll.scrollTop = 0; return; }
     if (followsLatest.current) scroll.scrollTop = scroll.scrollHeight;
     else if (anchor.current) {
       const item = Array.from(scroll.querySelectorAll<HTMLElement>("[data-message-id]")).find((element) => element.dataset.messageId === anchor.current?.id);

@@ -37,6 +37,7 @@ export function App({ layout }: { layout: AssistantLayout }) {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [commandsOpen, setCommandsOpen] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
+  const [workspaceNotice, setWorkspaceNotice] = useState('');
   const viewport = useAssistantViewport();
   const conversationViewport = { ...viewport, isMobile: viewport.isMobile || (layout === "column" && viewport.width < 1100) };
   const assistantIsOpen = presentation === "open";
@@ -52,10 +53,39 @@ export function App({ layout }: { layout: AssistantLayout }) {
   };
 
   const dismissAssistant = useCallback(() => {
+    const focused = document.activeElement as HTMLElement | null;
+    const keepWorkspaceFocus = !!focused?.closest('main, .sidebar');
     dismissEntityPreviews();
     setPresentation("closed");
-    window.requestAnimationFrame(() => (resumeRef.current ?? triggerRef.current)?.focus());
+    if (!keepWorkspaceFocus) window.requestAnimationFrame(() => (resumeRef.current ?? triggerRef.current)?.focus());
   }, []);
+
+  useEffect(() => {
+    if (!assistantIsOpen || layout !== 'floating' || conversationViewport.isMobile) return;
+    let keyboardNavigation = false;
+    const keydown = (event: KeyboardEvent) => { if (event.key === 'Tab') keyboardNavigation = true; };
+    const pointerdown = () => { keyboardNavigation = false; };
+    const focusin = (event: FocusEvent) => {
+      const target = event.target as HTMLElement;
+      if (!keyboardNavigation || !target.closest('main, .sidebar')) return;
+      const surface = document.querySelector<HTMLElement>('#assistant-conversation');
+      if (!surface) return;
+      const a = target.getBoundingClientRect(), b = surface.getBoundingClientRect();
+      if (a.right > b.left && a.left < b.right && a.bottom > b.top && a.top < b.bottom) {
+        dismissEntityPreviews();
+        setPresentation('minimized');
+        setWorkspaceNotice('Conversation minimized to keep the focused workspace control visible.');
+      }
+    };
+    document.addEventListener('keydown', keydown, true);
+    document.addEventListener('pointerdown', pointerdown, true);
+    document.addEventListener('focusin', focusin, true);
+    return () => {
+      document.removeEventListener('keydown', keydown, true);
+      document.removeEventListener('pointerdown', pointerdown, true);
+      document.removeEventListener('focusin', focusin, true);
+    };
+  }, [assistantIsOpen, layout, conversationViewport.isMobile]);
 
   const minimizeAssistant = () => {
     dismissEntityPreviews();
@@ -98,7 +128,9 @@ export function App({ layout }: { layout: AssistantLayout }) {
   };
 
   return (
-    <div className={`app-shell${sidebarIsCompact ? " sidebar-compact" : ""}${assistantIsOpen && layout === "column" && !conversationViewport.isMobile ? " column-open" : ""}`}>
+    <div className={`app-shell${sidebarIsCompact ? " sidebar-compact" : ""}${assistantIsOpen && layout === "column" && !conversationViewport.isMobile ? " column-open" : ""}`}
+      style={{ '--visual-height': `${viewport.height}px`, '--visual-top': `${viewport.top}px` } as CSSProperties}>
+      <span className="sr-only" role="status">{workspaceNotice}</span>
       <aside className="sidebar" aria-label="Primary" inert={modalIsOpen}>
         <div className="brand-row">
           <a className="brand" href="#top" aria-label="Aria Sales Hub home">

@@ -50,6 +50,6 @@ The previous separate-page desktop answer captures and current captures were ope
 
 ## Boundaries
 
-History is saved on this browser/device, with no account or cloud sync. Simultaneously editing the same option in multiple tabs is not synchronized and may overwrite stored history; use one active tab per option. Clearing browser storage removes it. Follow-ups remain authored demo responses grounded in the fictional workspace, not a connected general-purpose model. The exact Marcus assessment is the only scored fixture.
+History is saved on this browser/device, with no account or cloud sync. Same-origin tabs now synchronize field changes without replacing full history; see the [review fixes](../review-fixes/README.md). Clearing browser storage removes it. Follow-ups remain authored demo responses grounded in the fictional workspace, not a connected general-purpose model. The exact Marcus assessment is the only scored fixture.
 
 Browser viewport and keyboard tests do not cover physical touch/IME/software keyboards, VoiceOver/NVDA speech, forced colors, OS reduced-motion switching, or a full numerical contrast audit. No full accessibility certification is claimed. A public deployment and recording remain submission-preparation steps.

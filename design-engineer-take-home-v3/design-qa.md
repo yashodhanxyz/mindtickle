@@ -222,3 +222,15 @@ Earlier limitations for physical mobile keyboards, screen-reader announcements, 
 - [x] Preserve the first-answer contract and both desktop layouts.
 
 **final result: passed**
+
+## Review fixes and mobile follow-up — 11 September 2026
+
+This follow-up supersedes earlier persistence and mobile-integration limitations where explicitly verified. See [full evidence and limits](../docs/design/review-fixes/README.md).
+
+- Matched 390 × 844 overview and floating-chat screenshots were inspected together. Stacked overview cards remove the clipped horizontal strip; chat styling remains consistent, with larger header targets.
+- Column chat verified at 320 × 568 with no horizontal overflow, visible composer, inert background and keyboard wrap. Floating chat verified at 390 × 844 with Minimize/Restore. Mobile commands remain within a 320 × 350 viewport.
+- Desktop column geometry is intact. Floating keyboard navigation minimizes an obscuring conversation while preserving workspace focus. A fresh streamed answer ends within 0.5 px of the transcript bottom.
+- Live same-origin tab synchronization retained a draft while merging evidence state; deletion propagated. 25 unit tests and the production build pass.
+- No physical-phone keyboard or screen-reader certification is claimed. The local change journal has no compaction and is intended for assignment-scale use.
+
+**Result: scoped fixes verified; device-specific verification remains a stated limitation.**

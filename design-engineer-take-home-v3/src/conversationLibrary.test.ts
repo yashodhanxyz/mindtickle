@@ -1,9 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { createConversationLibrary } from './conversationLibrary';
 import { ASSESSMENT_PROMPT, type AnswerStream } from './conversation';
 import { streamAnswer } from '../mock/streamAnswer';
 const instant: AnswerStream = prompt => streamAnswer(prompt, {speed: 0});
-function memoryStorage() { const values = new Map<string,string>(); return {getItem: (key:string) => values.get(key) ?? null, setItem: (key:string,value:string) => {values.set(key,value);}}; }
+function memoryStorage() { const values = new Map<string,string>(); return {get length(){return values.size;},key:(index:number)=>[...values.keys()][index] ?? null,getItem: (key:string) => values.get(key) ?? null, setItem: (key:string,value:string) => {values.set(key,value);}}; }
 async function finish(controller: ReturnType<ReturnType<typeof createConversationLibrary>['controller']>) {
   if (!controller.getSnapshot().busy) return;
   await new Promise<void>(resolve => {const unsub=controller.subscribe(() => {if (!controller.getSnapshot().busy) {unsub(); resolve();}});});
@@ -54,7 +54,7 @@ describe('conversation library', () => {
     expect(recovered.controller(id).getSnapshot()).toMatchObject({busy:false,status:'Response interrupted by page reload.'});
     expect(recovered.controller(id).getSnapshot().messages[1]).toMatchObject({label:'Response interrupted',complete:false});
     storage.setItem('aria-conversations-v1-column','{bad');expect(createConversationLibrary('column',storage).getSnapshot().threads).toHaveLength(1);
-    const blocked=createConversationLibrary('column',{getItem(){throw Error('Denied');},setItem(){throw Error('Denied');}});
+    const blocked=createConversationLibrary('column',{length:0,key(){return null;},getItem(){throw Error('Denied');},setItem(){throw Error('Denied');}});
     expect(blocked.getSnapshot().storageError).toBe(true);
     expect(blocked.controller(blocked.getSnapshot().activeId).send('Tell me about Lena')).toBe(true);
   });
@@ -66,4 +66,76 @@ describe('conversation library', () => {
     const empty=library.create();library.select(second);expect(library.create()).toBe(empty);
     expect(library.getSnapshot().threads).toHaveLength(3);
   });
+});
+
+describe('cross-tab persistence', () => {
+  it('merges a newer draft with another tab reading without moving local reading', () => {
+    const storage=memoryStorage(); const a=createConversationLibrary('floating',storage);
+    const id=a.getSnapshot().activeId; a.controller(id).setDraft('Original'); a.flush();
+    const b=createConversationLibrary('floating',storage);
+    a.controller(id).setDraft('Newer draft'); a.flush();
+    b.controller(id).setReading({top:200,follow:false}); b.flush(); b.sync();
+    expect(b.controller(id).getSnapshot()).toMatchObject({draft:'Newer draft',reading:{top:200,follow:false}});
+    expect(createConversationLibrary('floating',storage).controller(id).getSnapshot().draft).toBe('Newer draft');
+  });
+  it('retains independently created threads and concurrent metadata edits', () => {
+    const storage=memoryStorage(); const a=createConversationLibrary('column',storage); const b=createConversationLibrary('column',storage);
+    const first=a.getSnapshot().activeId, second=b.getSnapshot().activeId;
+    a.controller(first).setDraft('First'); b.controller(second).setDraft('Second'); a.flush(); b.flush(); a.sync(); b.sync();
+    a.rename(first,'Named'); b.pin(first,true); a.sync();
+    expect(a.getSnapshot().threads.find(t=>t.id===first)).toMatchObject({title:'Named',pinned:true});
+    expect(a.controller(second).getSnapshot().draft).toBe('Second');
+    expect(b.getSnapshot().activeId).toBe(second);
+  });
+  it('does not let a delayed older draft win over a newer edit', () => {
+    vi.useFakeTimers();
+    try {
+      const storage=memoryStorage(); const a=createConversationLibrary('floating',storage);
+      const id=a.getSnapshot().activeId; a.controller(id).setDraft('Seed'); a.flush();
+      const b=createConversationLibrary('floating',storage);
+      a.controller(id).setDraft('Older'); vi.setSystemTime(Date.now()+1000);
+      b.controller(id).setDraft('Newer'); b.flush(); a.flush();
+      expect(createConversationLibrary('floating',storage).controller(id).getSnapshot().draft).toBe('Newer');
+    } finally {vi.useRealTimers();}
+  });
+  it('batches frequent reading changes and ignores unchanged values', () => {
+    vi.useFakeTimers();
+    try {
+      const storage=memoryStorage(); const write=vi.spyOn(storage,'setItem'); const a=createConversationLibrary('floating',storage);
+      const c=a.controller(a.getSnapshot().activeId); c.setDraft('Seed'); a.flush(); write.mockClear();
+      for(let top=1;top<=50;top++) c.setReading({top,follow:false});
+      expect(write).not.toHaveBeenCalled(); vi.advanceTimersByTime(200);
+      expect(write).toHaveBeenCalledTimes(1);
+      c.setReading({top:50,follow:false}); vi.advanceTimersByTime(200);
+      expect(write).toHaveBeenCalledTimes(1);
+      expect(write.mock.calls[0][0]).toContain('batch:');
+    } finally {vi.useRealTimers();}
+  });
+  it('keeps recovered interruptions sendable after unrelated synchronization', () => {
+    const storage=memoryStorage(); const a=createConversationLibrary('floating',storage,async function*(){await new Promise(()=>{});});
+    const id=a.getSnapshot().activeId; a.controller(id).send(ASSESSMENT_PROMPT);
+    const b=createConversationLibrary('floating',storage); a.rename(id,'Renamed elsewhere'); b.sync();
+    expect(b.controller(id).getSnapshot().busy).toBe(false);
+    expect(b.controller(id).getSnapshot().messages[1].label).toBe('Response interrupted');
+  });
+  it('does not resurrect a thread after another tab saves a late draft', () => {
+    const storage=memoryStorage(); const a=createConversationLibrary('floating',storage);
+    const id=a.getSnapshot().activeId; a.controller(id).setDraft('Seed'); a.flush();
+    const b=createConversationLibrary('floating',storage); a.remove(id);
+    b.controller(id).setDraft('Late draft'); b.flush(); b.sync();
+    expect(b.getSnapshot().threads.some(t=>t.id===id)).toBe(false);
+    expect(createConversationLibrary('floating',storage).getSnapshot().threads.some(t=>t.id===id)).toBe(false);
+  });
+});
+
+it('migrates legacy history without rewriting or losing saved fields', () => {
+  const storage=memoryStorage();
+  const legacy=JSON.stringify({version:1,activeId:'legacy',threads:[{id:'legacy',title:'Original name',renamed:true,pinned:true,updatedAt:10,state:{messages:[],draft:'Saved draft',busy:false,status:'',hasStarted:false,evidenceOpen:true,reading:{top:12,follow:false}}}]});
+  storage.setItem('aria-conversations-v1-floating',legacy);
+  const library=createConversationLibrary('floating',storage);
+  expect(library.getSnapshot().activeId).toBe('legacy');
+  expect(library.getSnapshot().threads.find(t=>t.id==='legacy')).toMatchObject({title:'Original name',pinned:true,state:{draft:'Saved draft',evidenceOpen:true}});
+  library.controller('legacy').setDraft('Updated draft');library.flush();
+  expect(storage.getItem('aria-conversations-v1-floating')).toBe(legacy);
+  expect(createConversationLibrary('floating',storage).controller('legacy').getSnapshot().draft).toBe('Updated draft');
 });

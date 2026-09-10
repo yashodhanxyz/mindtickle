@@ -91,7 +91,7 @@ export function ConversationHistory({ conversation, onSelect, onNew, onDeleted, 
         else { const active = history.activeId === editing.id; library.remove(editing.id); closeEdit(); setNotice('Conversation deleted.'); onDeleted(active); if (!active) requestAnimationFrame(() => newButton.current?.focus()); }
       }}>
         <h2 id={editTitleId}>{editing?.action === 'rename' ? 'Rename conversation' : 'Delete conversation?'}</h2>
-        {editing?.action === 'rename' ? <label>Conversation name<input autoFocus value={title} onChange={e => setTitle(e.target.value)} maxLength={80} required /></label> : <p>Delete “{editThread?.title}” from this device? This cannot be undone.</p>}
+        {editing?.action === 'rename' ? <label>Conversation name<input autoFocus value={title} onChange={e => setTitle(e.target.value)} maxLength={80} required /></label> : <p>Delete “{editThread?.title}” from conversation history? This cannot be undone.</p>}
         <div className="history-edit-actions"><button autoFocus={editing?.action === 'delete'} type="button" onClick={closeEdit}>Cancel</button><button type="submit" className={editing?.action === 'delete' ? 'danger-button' : 'save-button'} disabled={editing?.action === 'rename' && !title.trim()}>{editing?.action === 'rename' ? 'Save name' : 'Delete conversation'}</button></div>
       </form>
     </dialog>

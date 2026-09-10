@@ -57,6 +57,12 @@ export function getDemoReply(prompt: string, messages: ChatMessage[]): DemoReply
 
 
 
+  if (/more conversational|less formal|more natural|rephrase that|rewrite that/.test(question)) {
+    return lastReply?.label === "Suggested wording"
+      ? { label: "Suggested wording", text: "Who else should we bring in to make sure the operational and legal side is covered?" }
+      : { text: "I can help make a suggested coaching question more conversational. First, ask me to phrase the question for the next Brookfield call." };
+  }
+
   if (!card) {
     if (/brookfield|phrase|wording/.test(question)) return { label: "Suggested wording", text: "Who else needs to validate the operational and legal readiness of this project?" };
     return { text: "This guided demo can show workspace context for Marcus Bell, Lena Ortiz, Didi Rao, Brookfield, and Percepto. For scored coaching evidence, ask: How is Marcus doing on discovery calls this quarter? It does not generate replies outside those topics." };
@@ -65,12 +71,6 @@ export function getDemoReply(prompt: string, messages: ChatMessage[]): DemoReply
 
   if (/rubric|out of|score.*(calculated|mean)|scoring|scale|benchmark|trend|compared|previous quarter/.test(question)) {
     return { text: `The supplied card gives these scores: ${scoreSummary}. It does not provide a scoring scale, calculation method, benchmark, or prior-period data. I can explain the evidence alongside each score.` };
-  }
-
-  if (/more conversational|less formal|more natural|rephrase that|rewrite that/.test(question)) {
-    return lastReply?.label === "Suggested wording"
-      ? { label: "Suggested wording", text: "Who else should we bring in to make sure the operational and legal side is covered?" }
-      : { text: "I can help make a suggested coaching question more conversational. First, ask me to phrase the question for the next Brookfield call." };
   }
 
   if (/phrase|wording|how should|what should.*ask|suggest.*question|draft.*question|brookfield/.test(question)) {
@@ -117,7 +117,6 @@ export function createConversationController(answerStream: AnswerStream = stream
   let state: ConversationState = initial ?? {
     messages: [], draft: "", busy: false, status: "", hasStarted: false, evidenceOpen: false,
   };
-  let nextId = state.messages.reduce((max, message) => Math.max(max, Number(message.id.replace("message-", "")) || 0), 0);
   const listeners = new Set<() => void>();
   const update = (patch: Partial<ConversationState>) => {
     if (disposed) return;
@@ -173,16 +172,19 @@ export function createConversationController(answerStream: AnswerStream = stream
       return () => { listeners.delete(listener); };
     },
     dispose() { disposed = true; listeners.clear(); },
-    setReading(reading: { top: number; follow: boolean }) { update({ reading }); },
-    setDraft(draft: string) { update({ draft }); },
+    replaceState(next: ConversationState) { update(next); },
+    setReading(reading: { top: number; follow: boolean }) {
+      if (state.reading?.top !== reading.top || state.reading?.follow !== reading.follow) update({ reading });
+    },
+    setDraft(draft: string) { if (draft !== state.draft) update({ draft }); },
     setEvidenceOpen(evidenceOpen: boolean) { update({ evidenceOpen }); },
     send(text?: string): boolean {
       const prompt = (text ?? state.draft).trim();
       if (!prompt || state.busy || disposed) return false;
       const history = state.messages;
       const firstAnswer = prompt.toLowerCase() === ASSESSMENT_PROMPT.toLowerCase() && !state.messages.some((message) => message.card);
-      const id = `message-${++nextId}`;
-      const assistantId = `message-${++nextId}`;
+      const id = `message-${crypto.randomUUID()}`;
+      const assistantId = `message-${crypto.randomUUID()}`;
       update({
         messages: [
           ...history,

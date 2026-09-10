@@ -224,3 +224,39 @@
   .chat-icon-button { width: 32px; }
   .chat-header { padding-left: 12px; padding-right: 8px; gap: 7px; }
 }
+
+/* Responsive layout is CSS-first; JS only supplies keyboard viewport bounds. */
+@media (max-width: 1099px) {
+  .app-shell.column-open { grid-template-columns: var(--sidebar-w) minmax(0, 1fr); }
+  .assistant-column {
+    position: fixed; grid-column: auto; grid-row: auto;
+    inset: var(--visual-top, 0px) 0 auto; width: 100%;
+    height: min(100dvh, var(--visual-height, 100dvh)); border: 0;
+  }
+}
+@media (max-width: 760px) {
+  .app-shell, .app-shell.column-open { grid-template-columns: minmax(0, 1fr); }
+  .assistant-surface {
+    position: fixed; grid-column: auto; grid-row: auto;
+    inset: var(--visual-top, 0px) 0 auto; width: 100%;
+    height: min(100dvh, var(--visual-height, 100dvh));
+    border: 0; border-radius: 0; box-shadow: none; animation: none;
+  }
+  .sidebar { padding-top: max(10px, env(safe-area-inset-top)); }
+  .chat-header { padding-top: max(12px, env(safe-area-inset-top)); }
+  .section-head { flex-wrap: wrap; gap: 6px 12px; }
+  .stat-grid { display: grid; grid-template-columns: minmax(0, 1fr); margin: 0; padding: 0; overflow: visible; scroll-snap-type: none; }
+  .stat { min-width: 0; }
+  .sidebar .sidebar-search, .sidebar .chat-icon-button, .assistant-mobile .chat-icon-button { width: 44px; height: 44px; }
+  .assistant-entry { bottom: max(12px, env(safe-area-inset-bottom)); }
+  .history-dialog, .history-edit, .command-dialog {
+    position: fixed; inset: calc(var(--visual-top, 0px) + 12px) 0 auto; margin: 0 auto;
+    max-height: calc(min(100dvh, var(--visual-height, 100dvh)) - 24px);
+  }
+  .history-dialog { inset-block-start: var(--visual-top, 0px); height: min(100dvh, var(--visual-height, 100dvh)); max-height: min(100dvh, var(--visual-height, 100dvh)); padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+  .command-dialog[open] { display: flex; flex-direction: column; }
+  .command-search, .command-footer, .command-help-heading { flex: none; }
+  .command-results { min-height: 0; max-height: none; overflow-y: auto; }
+  .shortcut-list { overflow-y: auto; min-height: 0; }
+  .history-edit { overflow-y: auto; }
+}

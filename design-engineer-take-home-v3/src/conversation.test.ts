@@ -120,3 +120,11 @@ describe("bounded demo replies", () => {
     expect(getDemoReply("What is the weather tomorrow?", messages).text).toContain("does not generate replies outside those topics");
   });
 });
+
+it('rewrites Brookfield wording in a fresh conversation without a Marcus assessment', async () => {
+  const controller = createConversationController(instantStream);
+  controller.send('Suggest wording for Brookfield'); await finished(controller);
+  controller.send('Make that more conversational'); await finished(controller);
+  expect(controller.getSnapshot().messages.at(-1)?.text).toContain('Who else should we bring in');
+  expect(controller.getSnapshot().messages.some(m=>m.card)).toBe(false);
+});
