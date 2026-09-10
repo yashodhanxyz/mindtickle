@@ -6,7 +6,8 @@
  * <AssistantExperience />. Small shell integration changes are welcome when
  * they help the proposed experience feel coherent.
  */
-import { useCallback, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { CommandMenu, commandKey } from "./CommandMenu";
 import { Sparkles, X } from "lucide-react";
 import { ConversationHistory, HistoryDialog, HistoryButton } from "./ConversationHistory";
 import { AssistantExperience } from "./AssistantExperience";
@@ -34,6 +35,7 @@ export function App({ layout }: { layout: AssistantLayout }) {
   const minimizedRef = useRef<HTMLButtonElement>(null);
   const conversation = useConversation(layout);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [commandsOpen, setCommandsOpen] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
   const viewport = useAssistantViewport();
   const conversationViewport = { ...viewport, isMobile: viewport.isMobile || (layout === "column" && viewport.width < 1100) };
@@ -68,8 +70,21 @@ export function App({ layout }: { layout: AssistantLayout }) {
     setFocusRequest(request => ({ sequence: request.sequence + 1, target: "composer" }));
   };
   const openHistory = () => { dismissEntityPreviews(); setHistoryOpen(true); };
+  const openCommands = () => { dismissEntityPreviews(); setHistoryOpen(false); setCommandsOpen(true); };
+  useEffect(() => {
+    const shortcut = (event: KeyboardEvent) => {
+      if (event.isComposing || event.repeat || event.altKey || event.shiftKey || !(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'k') return;
+      // Do not interrupt a pending rename or delete confirmation.
+      if (document.querySelector('.history-edit[open]')) return;
+      event.preventDefault(); event.stopPropagation();
+      dismissEntityPreviews(); setHistoryOpen(false); setCommandsOpen(open => !open);
+    };
+    document.addEventListener('keydown', shortcut, true);
+    return () => document.removeEventListener('keydown', shortcut, true);
+  }, []);
   const historyProps = {
     conversation,
+    onCommands: openCommands,
     onSelect: (id: string) => openThread(id),
     onNew: () => openThread(),
     onDeleted: (active: boolean) => {
@@ -102,11 +117,11 @@ export function App({ layout }: { layout: AssistantLayout }) {
           </button>
         </div>
 
-        <div className="sidebar-search shell-context" data-label="Search" aria-hidden="true">
+        <button className="sidebar-search" type="button" aria-label="Search commands and conversations" aria-keyshortcuts="Meta+K Control+K" onClick={openCommands}>
           <Icons.search data-icon="inline-start" />
           <span className="nav-label">Search</span>
-          <span className="kbd">⌘K</span>
-        </div>
+          <span className="kbd" aria-hidden="true">{commandKey()}</span>
+        </button>
 
         <nav className="nav-group" id="primary-navigation" aria-label="Main">
           <span className="nav-item shell-context" aria-current="page" data-label="Home"><Icons.home data-icon="inline-start" /><span className="nav-label">Home</span></span>
@@ -204,6 +219,10 @@ export function App({ layout }: { layout: AssistantLayout }) {
         onDismiss={dismissAssistant} onMinimize={minimizeAssistant} viewport={conversationViewport} focusRequest={focusRequest} />
 
       <HistoryDialog {...historyProps} open={historyOpen} onClose={() => setHistoryOpen(false)} />
+      <CommandMenu open={commandsOpen} onClose={() => setCommandsOpen(false)} onNew={() => openThread()}
+        onResume={() => openThread(conversation.id)} onHistory={openHistory}
+        sidebarCompact={sidebarIsCompact} onToggleSidebar={() => setSidebarIsCompact(value => !value)}
+        showSidebarControls={!viewport.isMobile} threads={conversation.history.threads} onSelect={openThread} />
 
       {presentation === "minimized" && <div className="minimized-chat" onKeyDown={(event) => { if (event.key === "Escape") dismissAssistant(); }}>
         <button ref={minimizedRef} className="minimized-restore" type="button" onClick={invokeAssistant} aria-label="Restore AI Assistant conversation" aria-controls="assistant-conversation" aria-expanded={false}>

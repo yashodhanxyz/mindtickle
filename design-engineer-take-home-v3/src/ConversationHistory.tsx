@@ -4,7 +4,7 @@ import type { SavedConversation } from './conversationLibrary';
 import type { useConversation } from './useConversation';
 
 type Conversation = ReturnType<typeof useConversation>;
-type Props = { conversation: Conversation; onSelect: (id: string) => void; onNew: () => void; onDeleted: (active: boolean) => void; overlay?: boolean; onClose?: () => void };
+type Props = { conversation: Conversation; onSelect: (id: string) => void; onNew: () => void; onDeleted: (active: boolean) => void; onCommands: () => void; overlay?: boolean; onClose?: () => void };
 
 function containDialogFocus(event: ReactKeyboardEvent<HTMLDialogElement>) {
   if (event.key !== 'Tab') return;
@@ -49,7 +49,7 @@ function RowMenu({ thread, onAction }: { thread: SavedConversation; onAction: (a
   </>;
 }
 
-export function ConversationHistory({ conversation, onSelect, onNew, onDeleted, overlay, onClose }: Props) {
+export function ConversationHistory({ conversation, onSelect, onNew, onDeleted, onCommands, overlay, onClose }: Props) {
   const { history, library } = conversation;
   const editTitleId = useId();
   const [editing, setEditing] = useState<{ id: string; action: 'rename' | 'delete' } | null>(null);
@@ -61,9 +61,10 @@ export function ConversationHistory({ conversation, onSelect, onNew, onDeleted, 
   useEffect(() => { if (editing) dialog.current?.showModal(); else dialog.current?.close(); }, [editing]);
   const closeEdit = () => { dialog.current?.close(); setEditing(null); };
   const threads = history.threads.filter(t => t.state.hasStarted || t.state.draft.trim()).sort((a, b) => b.updatedAt - a.updatedAt);
-  return <section className={`conversation-history${overlay ? ' history-overlay-content' : ''}`} aria-label="AI conversations">
-    <div className="history-heading"><h2>AI conversations</h2>{onClose && <button className="chat-icon-button" type="button" aria-label="Close conversation history" onClick={onClose}><X size={18} aria-hidden="true" /></button>}</div>
+  return <section className={`conversation-history${overlay ? ' history-overlay-content' : ''}`} aria-label="Conversations">
+    {overlay && <div className="history-heading"><h2>Conversations</h2><button className="chat-icon-button" type="button" aria-label="Close conversation history" onClick={onClose}><X size={18} aria-hidden="true" /></button></div>}
     <button ref={newButton} className="history-new" type="button" onClick={onNew}><Plus size={17} aria-hidden="true" />New conversation</button>
+    {overlay && <button className="history-command-link" type="button" onClick={onCommands}>Search commands and shortcuts</button>}
     <div className="history-list">
       {threads.length === 0 && <p className="history-empty">Your conversations will appear here after you send a message.</p>}
       {[true, false].map(pinned => {

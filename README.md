@@ -28,7 +28,8 @@ GitHub Actions runs these checks on pushes and pull requests.
 
 ## Project contents
 
-- [Current implementation and QA](docs/design/conversation-history/README.md): multiple conversations, saved drafts, sidebar history, and desktop/mobile checks.
+- [Command menu and shortcuts](docs/design/shortcuts/README.md): functional Search, Command/Control K, keyboard guide, and sidebar refinement.
+- [Conversation history implementation and QA](docs/design/conversation-history/README.md): multiple conversations, saved drafts, sidebar history, and desktop/mobile checks.
 - [Separate pages and shared quick views](docs/design/separate-pages/README.md): previous integration and entity-context checks.
 - [Entity content research](docs/research/entity-context.md): source-informed fictional coaching and deal context.
 - [Earlier conversation layouts](docs/design/implementation-2026-09-10.md): bottom-attached floating chat and an integrated third column, with shared mobile behaviour.

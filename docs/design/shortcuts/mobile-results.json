@@ -1,0 +1,38 @@
+[
+  {
+    "focus": "chat-draft",
+    "height": 568,
+    "menuOpen": false,
+    "overflow": false,
+    "route": "/column",
+    "title": "Marcus · Discovery coaching",
+    "width": 320
+  },
+  {
+    "focus": "chat-draft",
+    "height": 844,
+    "menuOpen": false,
+    "overflow": false,
+    "route": "/column",
+    "title": "Marcus · Discovery coaching",
+    "width": 390
+  },
+  {
+    "focus": "chat-draft",
+    "height": 568,
+    "menuOpen": false,
+    "overflow": false,
+    "route": "/floating",
+    "title": "Marcus · Discovery coaching",
+    "width": 320
+  },
+  {
+    "focus": "chat-draft",
+    "height": 844,
+    "menuOpen": false,
+    "overflow": false,
+    "route": "/floating",
+    "title": "Marcus · Discovery coaching",
+    "width": 390
+  }
+]

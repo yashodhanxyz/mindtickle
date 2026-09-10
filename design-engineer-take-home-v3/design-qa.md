@@ -1,3 +1,9 @@
+# Current QA — command menu and sidebar refinement
+
+10 September 2026. Removed the visible AI conversations heading and cleared the preview test pin. Search now opens a working Command K / Control K command menu with saved-chat search and a keyboard guide. Desktop and both mobile widths passed; 17 tests and the production build pass. [Review, visual evidence, checks, and limits](../docs/design/shortcuts/README.md).
+
+---
+
 # Current QA — multiple saved conversations
 
 10 September 2026. Both options passed the scoped conversation-history review. [Implementation, captures, tests, and limitations](../docs/design/conversation-history/README.md) supersede the historical session limits below.
