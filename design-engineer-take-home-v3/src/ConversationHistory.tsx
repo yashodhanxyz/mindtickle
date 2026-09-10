@@ -82,7 +82,7 @@ export function ConversationHistory({ conversation, onSelect, onNew, onDeleted, 
         </div>;
       })}
     </div>
-    <p className="history-storage">{history.storageError ? 'Storage unavailable · Kept for this session' : 'Saved on this device'}</p>
+    {history.storageError && <p className="history-storage">Storage unavailable · Kept for this session</p>}
     <span role="status" className="sr-only">{notice}</span>
     <dialog ref={dialog} className="history-edit" onCancel={e => { e.preventDefault(); e.stopPropagation(); closeEdit(); }} onKeyDown={e => { containDialogFocus(e); e.stopPropagation(); }} aria-labelledby={editTitleId}>
       <form onSubmit={e => {
