@@ -1,0 +1,372 @@
+{
+  "retrieved_on": "2026-09-10",
+  "task_intent": "Research interface patterns for an AI assistant that presents an assessment and supporting evidence.",
+  "scope": "Primary-agent desktop search metadata. Flow screen metadata includes unviewed steps; inspected_preview_positions specifies what was visually reviewed.",
+  "searches": [
+    {
+      "key": "desktop_anchor",
+      "query": "AI assistant answer in a floating popup above a prompt input over an application workspace",
+      "screens": [
+        {
+          "id": "ec1eddc9-37e7-45d3-bf7a-cbb30ab6b38b",
+          "image_url": "https://mobbin.com/api/mcp/short/TJ08gtJH",
+          "mobbin_url": "https://mobbin.com/screens/ec1eddc9-37e7-45d3-bf7a-cbb30ab6b38b",
+          "app_name": "Notion",
+          "platform": "web"
+        },
+        {
+          "id": "0e209d9a-bd32-4bfc-9818-acd69949f45e",
+          "image_url": "https://mobbin.com/api/mcp/short/xN9pcEHF",
+          "mobbin_url": "https://mobbin.com/screens/0e209d9a-bd32-4bfc-9818-acd69949f45e",
+          "app_name": "Ferndesk",
+          "platform": "web"
+        },
+        {
+          "id": "5f8df5b0-6050-449b-b1f8-fb5f6e088c7f",
+          "image_url": "https://mobbin.com/api/mcp/short/yFXopiga",
+          "mobbin_url": "https://mobbin.com/screens/5f8df5b0-6050-449b-b1f8-fb5f6e088c7f",
+          "app_name": "Langdock",
+          "platform": "web"
+        }
+      ],
+      "inspected_preview_positions": null
+    },
+    {
+      "key": "desktop_panel",
+      "query": "AI assistant in a right sidebar with a completed answer while the main document remains visible",
+      "screens": [
+        {
+          "id": "d5fa9c73-0fbd-4b6e-9d7a-b7fa36e54a2c",
+          "image_url": "https://mobbin.com/api/mcp/short/azkMXGBo",
+          "mobbin_url": "https://mobbin.com/screens/d5fa9c73-0fbd-4b6e-9d7a-b7fa36e54a2c",
+          "app_name": "Semrush",
+          "platform": "web"
+        },
+        {
+          "id": "c6048777-510b-4293-8bc7-7ca53f75a515",
+          "image_url": "https://mobbin.com/api/mcp/short/GFwxKoLO",
+          "mobbin_url": "https://mobbin.com/screens/c6048777-510b-4293-8bc7-7ca53f75a515",
+          "app_name": "Fabric",
+          "platform": "web"
+        },
+        {
+          "id": "f7b146fb-ea9a-4596-a37a-3f72b340ea1e",
+          "image_url": "https://mobbin.com/api/mcp/short/ReSwt9mV",
+          "mobbin_url": "https://mobbin.com/screens/f7b146fb-ea9a-4596-a37a-3f72b340ea1e",
+          "app_name": "Dropbox Dash",
+          "platform": "web"
+        }
+      ],
+      "inspected_preview_positions": null
+    },
+    {
+      "key": "notion_answer_flow",
+      "query": "Notion asking AI a question and reading its answer with sources",
+      "page": 1,
+      "has_next_page": true,
+      "flows": [
+        {
+          "id": "ccf65ac4-0e00-41d1-8cba-2887ed3f137a",
+          "name": "Researching with Notion AI",
+          "actions": [
+            "Chatting & Sending Messages"
+          ],
+          "mobbin_url": "https://mobbin.com/flows/ccf65ac4-0e00-41d1-8cba-2887ed3f137a",
+          "app_name": "Notion",
+          "platform": "web",
+          "screen_count": 6,
+          "screens": [
+            {
+              "screen_id": "8d3114c7-1b97-49ac-9c54-4097b8266cfd",
+              "image_url": "https://mobbin.com/api/mcp/short/TkCLBxJl",
+              "position": 1
+            },
+            {
+              "screen_id": "5fd913fc-8d15-4c96-bb61-906f19f936ce",
+              "image_url": "https://mobbin.com/api/mcp/short/cp6mmYiL",
+              "position": 2
+            },
+            {
+              "screen_id": "66e75e83-a2c9-4c7f-83c9-03877f733573",
+              "image_url": "https://mobbin.com/api/mcp/short/DV1ko8JG",
+              "position": 3
+            },
+            {
+              "screen_id": "85c0055b-32c1-493a-8c5a-4f5e60546034",
+              "image_url": "https://mobbin.com/api/mcp/short/s9cyV6gR",
+              "position": 4
+            },
+            {
+              "screen_id": "29241c48-2545-4bbd-b433-479fd29fbd56",
+              "image_url": "https://mobbin.com/api/mcp/short/zivooXQC",
+              "position": 5
+            },
+            {
+              "screen_id": "5e65a541-e83c-410a-ac8b-9ac7e4dc59fc",
+              "image_url": "https://mobbin.com/api/mcp/short/VVLoKR2k",
+              "position": 6
+            }
+          ]
+        }
+      ],
+      "inspected_preview_positions": [
+        [
+          1,
+          4,
+          6
+        ]
+      ]
+    },
+    {
+      "key": "desktop_dialog",
+      "query": "AI assistant generated answer inside a centered dialog overlay on top of a workspace",
+      "screens": [
+        {
+          "id": "0e277c22-7dac-4085-aa59-cd24cd3dbc52",
+          "image_url": "https://mobbin.com/api/mcp/short/1aOBFrdX",
+          "mobbin_url": "https://mobbin.com/screens/0e277c22-7dac-4085-aa59-cd24cd3dbc52",
+          "app_name": "Fireflies",
+          "platform": "web"
+        },
+        {
+          "id": "7ba222a6-6d42-4ce8-bf0e-318d7b3b10be",
+          "image_url": "https://mobbin.com/api/mcp/short/h0k8WUId",
+          "mobbin_url": "https://mobbin.com/screens/7ba222a6-6d42-4ce8-bf0e-318d7b3b10be",
+          "app_name": "Square",
+          "platform": "web"
+        },
+        {
+          "id": "be398c6d-cfdb-4417-9029-f00eae356a85",
+          "image_url": "https://mobbin.com/api/mcp/short/M5wqXcVV",
+          "mobbin_url": "https://mobbin.com/screens/be398c6d-cfdb-4417-9029-f00eae356a85",
+          "app_name": "Frame",
+          "platform": "web"
+        }
+      ],
+      "inspected_preview_positions": null
+    },
+    {
+      "key": "fireflies_flow",
+      "query": "Fireflies asking AskFred a question across meetings and reading its answer",
+      "page": 1,
+      "has_next_page": true,
+      "flows": [
+        {
+          "id": "fbf49d5e-5e98-4adf-b871-9c15b1d26b6b",
+          "name": "Testing an agent",
+          "actions": [
+            "Calling"
+          ],
+          "mobbin_url": "https://mobbin.com/flows/fbf49d5e-5e98-4adf-b871-9c15b1d26b6b",
+          "app_name": "Fireflies",
+          "platform": "web",
+          "screen_count": 4,
+          "screens": [
+            {
+              "screen_id": "124c780f-f704-4088-8b35-01f7ca0502dd",
+              "image_url": "https://mobbin.com/api/mcp/short/Hk7kQ09j",
+              "position": 1
+            },
+            {
+              "screen_id": "6ce08a7d-7f9e-44e9-9163-d64f2b8b29d2",
+              "image_url": "https://mobbin.com/api/mcp/short/p86dHHmi",
+              "position": 2
+            },
+            {
+              "screen_id": "50b7fec7-0287-455b-a743-da1a753c9d72",
+              "image_url": "https://mobbin.com/api/mcp/short/EcDGOOcl",
+              "position": 3
+            },
+            {
+              "screen_id": "7112c8e1-673b-4fc2-bd1d-7b040e523de0",
+              "image_url": "https://mobbin.com/api/mcp/short/FlAwMkqO",
+              "position": 4
+            }
+          ]
+        }
+      ],
+      "inspected_preview_positions": [
+        [
+          1,
+          3,
+          4
+        ]
+      ]
+    },
+    {
+      "key": "notion_inline",
+      "query": "Notion AI generated summary shown in a floating response box below selected document text",
+      "screens": [
+        {
+          "id": "7e25606f-869e-4867-8400-cfac83d7e1b1",
+          "image_url": "https://mobbin.com/api/mcp/short/iYDaaHFK",
+          "mobbin_url": "https://mobbin.com/screens/7e25606f-869e-4867-8400-cfac83d7e1b1",
+          "app_name": "Notion",
+          "platform": "web"
+        },
+        {
+          "id": "166f090a-af4b-4872-a9fa-9acafc69e41c",
+          "image_url": "https://mobbin.com/api/mcp/short/QCbKoGnu",
+          "mobbin_url": "https://mobbin.com/screens/166f090a-af4b-4872-a9fa-9acafc69e41c",
+          "app_name": "Notion",
+          "platform": "web"
+        },
+        {
+          "id": "c562f7e8-d22a-45ac-b255-b73d72b34d34",
+          "image_url": "https://mobbin.com/api/mcp/short/XrgHJ1e3",
+          "mobbin_url": "https://mobbin.com/screens/c562f7e8-d22a-45ac-b255-b73d72b34d34",
+          "app_name": "Notion",
+          "platform": "web"
+        }
+      ],
+      "inspected_preview_positions": null
+    },
+    {
+      "key": "fireflies_chat_flow",
+      "query": "Fireflies chatting with AskFred",
+      "page": 1,
+      "has_next_page": true,
+      "flows": [
+        {
+          "id": "65275e70-7b71-4bc8-9d23-83586b90dc82",
+          "name": "Chatting with AI",
+          "actions": [
+            "Chatting & Sending Messages"
+          ],
+          "mobbin_url": "https://mobbin.com/flows/65275e70-7b71-4bc8-9d23-83586b90dc82",
+          "app_name": "Fireflies",
+          "platform": "web",
+          "screen_count": 10,
+          "screens": [
+            {
+              "screen_id": "9aaaf547-cc08-4cae-b0f3-76b8b3ed915e",
+              "image_url": "https://mobbin.com/api/mcp/short/XDaebTFs",
+              "position": 1
+            },
+            {
+              "screen_id": "98bce96c-dff8-4e96-82db-85ba18f45be6",
+              "image_url": "https://mobbin.com/api/mcp/short/VZWhhPH3",
+              "position": 2
+            },
+            {
+              "screen_id": "0d66a117-dddf-4e68-83cf-7144b06119cc",
+              "image_url": "https://mobbin.com/api/mcp/short/qi8HbiJK",
+              "position": 3
+            },
+            {
+              "screen_id": "ef61eefc-ae0b-4618-a9f8-18135d039dd3",
+              "image_url": "https://mobbin.com/api/mcp/short/qsrybpuG",
+              "position": 4
+            },
+            {
+              "screen_id": "bbd234a5-f959-4188-ad3d-37b3a0ddba8e",
+              "image_url": "https://mobbin.com/api/mcp/short/8l357IZ6",
+              "position": 5
+            },
+            {
+              "screen_id": "e50270db-bb99-4e44-9daf-45fdb2854157",
+              "image_url": "https://mobbin.com/api/mcp/short/hKPfwYKM",
+              "position": 6
+            },
+            {
+              "screen_id": "5dbe7af8-4bb5-470d-a5f3-67edecfdac9b",
+              "image_url": "https://mobbin.com/api/mcp/short/xoXvadmX",
+              "position": 7
+            },
+            {
+              "screen_id": "3f11994c-6e9a-4ba4-a6cb-d80a88640fe5",
+              "image_url": "https://mobbin.com/api/mcp/short/uoMZTFU8",
+              "position": 8
+            },
+            {
+              "screen_id": "ce545e5e-b714-4e53-8ad3-8d04b48c3f32",
+              "image_url": "https://mobbin.com/api/mcp/short/8JqtrPqJ",
+              "position": 9
+            },
+            {
+              "screen_id": "0e277c22-7dac-4085-aa59-cd24cd3dbc52",
+              "image_url": "https://mobbin.com/api/mcp/short/56pE3Gbn",
+              "position": 10
+            }
+          ]
+        },
+        {
+          "id": "31866c11-6fcc-4585-977b-7ec6b0d0531e",
+          "name": "Chatting with AI (live notes)",
+          "actions": [
+            "Chatting & Sending Messages"
+          ],
+          "mobbin_url": "https://mobbin.com/flows/31866c11-6fcc-4585-977b-7ec6b0d0531e",
+          "app_name": "Fireflies",
+          "platform": "web",
+          "screen_count": 3,
+          "screens": [
+            {
+              "screen_id": "30f85afd-440a-44aa-a8bc-1e3386934715",
+              "image_url": "https://mobbin.com/api/mcp/short/6oaw8OLP",
+              "position": 1
+            },
+            {
+              "screen_id": "77de8f45-5a6b-4116-aeb5-f73de2c26d4b",
+              "image_url": "https://mobbin.com/api/mcp/short/Gs68iemB",
+              "position": 2
+            },
+            {
+              "screen_id": "c610ebdb-b406-4509-ab72-006ced491c59",
+              "image_url": "https://mobbin.com/api/mcp/short/iRrlbaD8",
+              "position": 3
+            }
+          ]
+        }
+      ],
+      "inspected_preview_positions": [
+        [
+          1,
+          4,
+          7,
+          10
+        ],
+        [
+          1,
+          2,
+          3
+        ]
+      ]
+    },
+    {
+      "key": "coaching_scorecard",
+      "query": "Sales call coaching scorecard displaying skill ratings and written feedback for each skill",
+      "screens": [
+        {
+          "id": "5ba5ca46-2c2d-4823-b771-0a75e817589a",
+          "image_url": "https://mobbin.com/api/mcp/short/glZIDe6G",
+          "mobbin_url": "https://mobbin.com/screens/5ba5ca46-2c2d-4823-b771-0a75e817589a",
+          "app_name": "Grain",
+          "platform": "web"
+        },
+        {
+          "id": "2b147162-dcec-40bf-8f1b-42864f4ccba2",
+          "image_url": "https://mobbin.com/api/mcp/short/w4DnflGW",
+          "mobbin_url": "https://mobbin.com/screens/2b147162-dcec-40bf-8f1b-42864f4ccba2",
+          "app_name": "SchoolAI",
+          "platform": "web"
+        },
+        {
+          "id": "e4f6a829-569c-4095-8568-9bed1a58cae6",
+          "image_url": "https://mobbin.com/api/mcp/short/AZskdeBF",
+          "mobbin_url": "https://mobbin.com/screens/e4f6a829-569c-4095-8568-9bed1a58cae6",
+          "app_name": "Dialpad",
+          "platform": "web"
+        }
+      ],
+      "inspected_preview_positions": null
+    }
+  ],
+  "team_coverage": {
+    "total_searches": 14,
+    "total_unique_images_reviewed": 42,
+    "web": 34,
+    "ios": 8,
+    "note": "Supporting-evidence research: 3 searches, 7 unique web images. Mobile research: 3 searches, 8 unique iOS images. Their canonical selections and observations are in the accompanying report."
+  }
+}
