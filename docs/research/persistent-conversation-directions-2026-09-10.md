@@ -2,6 +2,8 @@
 
 10 September 2026. Research and design proposals; no conversational UI or model integration implemented.
 
+**Next stage:** the [conversation storyboards](../design/conversation-storyboards-2026-09-10.md) compare these two layouts through the same three exchanges, evidence inspection, unsent draft, and close/resume sequence. They include desktop concepts and one shared mobile adaptation.
+
 ## Revised brief
 
 Jordan should be able to continue talking to the assistant after receiving Marcus's assessment. The first coaching answer is the beginning of a conversation, not the end of a report. Explore two primary arrangements: a floating chat window over the usable workspace, and a genuine third column beside navigation and main content.

@@ -26,6 +26,8 @@ GitHub Actions runs these checks on pushes and pull requests.
 
 ## Project contents
 
+- [Current conversation storyboards](docs/design/conversation-storyboards-2026-09-10.md): floating chat and an integrated third column, with shared mobile behaviour; layout selection pending.
+- [Supporting research](docs/research/persistent-conversation-directions-2026-09-10.md): Mobbin patterns, source evidence, and design tradeoffs.
 - `design-engineer-take-home-v3/src/`: the supplied app shell and assistant placeholder.
 - `design-engineer-take-home-v3/mock/`: the fixed answer stream, types, and tests.
 - `design-engineer-take-home-v3/public/`: the supplied logo, font, and font license.
