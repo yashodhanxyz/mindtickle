@@ -3,15 +3,6 @@
 [hidden] { display: none !important; }
 .app-shell.column-open { grid-template-columns: var(--sidebar-w) minmax(0, 1fr) var(--chat-column-w); }
 .main-inner { container-type: inline-size; }
-.assistant-entry {
-  position: fixed; z-index: 40; left: calc(50% + var(--sidebar-w) / 2); bottom: 1.5rem;
-  transform: translateX(-50%); display: grid; justify-items: center; gap: 0.75rem;
-  width: min(var(--assistant-w), calc(100vw - var(--sidebar-w) - 3rem));
-}
-.assistant-entry .assistant-trigger { position: static; width: 100%; transform: none; }
-.column-open .assistant-entry { left: calc((100% + var(--sidebar-w) - var(--chat-column-w)) / 2); width: min(35rem, calc(100vw - var(--sidebar-w) - var(--chat-column-w) - 3rem)); }
-.resume-conversation { display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 48px; padding: 10px 20px; border: 1px solid color-mix(in oklch, var(--primary) 22%, white); border-radius: 999px; background: var(--background); color: var(--primary); font-size: 14px; font-weight: 500; box-shadow: var(--shadow-md); }
-.resume-conversation:hover { background: var(--secondary); }
 .assistant-surface {
   z-index: 60; display: flex; flex-direction: column; min-width: 0; overflow: clip;
   background: var(--background); color: var(--foreground); font-size: 15px; line-height: 1.55;
@@ -66,12 +57,6 @@
 .chat-send:disabled { background: var(--muted); color: var(--text-secondary); cursor: default; }
 .demo-notice { margin: 8px 0 0; text-align: center; color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
 .new-reply { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; align-items: center; padding: 7px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--background); color: var(--primary); font-size: 12px; box-shadow: var(--shadow-md); }
-.minimized-chat { position: fixed; z-index: 60; bottom: 0; right: 24px; width: 280px; display: flex; align-items: center; gap: 6px; padding: 5px 8px; border: 1px solid var(--border); border-bottom: 0; border-radius: 12px 12px 0 0; background: var(--background); box-shadow: var(--shadow-lg); animation: card-reveal 140ms var(--ease-out); }
-.minimized-restore { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; min-height: 48px; padding: 5px; border: 0; border-radius: 6px; background: transparent; text-align: left; }
-.minimized-restore:hover { background: var(--secondary); }
-.minimized-restore span { display: grid; gap: 1px; min-width: 0; }
-.minimized-restore strong { font-size: 13px; font-weight: 600; }
-.minimized-restore small { color: var(--text-secondary); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (min-width: 761px) {
   @container (max-width: 700px) {
     .greeting-row { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
@@ -86,9 +71,6 @@
 .assistant-mobile .chat-icon-button { width: 38px; min-height: 44px; }
 @media (max-width: 760px) {
   .app-shell.sidebar-compact { --sidebar-w: 0rem; }
-  .assistant-entry { left: 12px; right: 12px; width: auto; transform: none; bottom: 12px; }
-  .assistant-entry .assistant-trigger { width: 100%; }
-  .minimized-chat { right: 12px; width: min(280px, calc(100vw - 24px)); }
   .chat-transcript { padding: 18px 14px; }
   .chat-messages { gap: 24px; }
   .chat-actions { gap: 0; }
@@ -100,8 +82,8 @@
 @keyframes assistant-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .assistant-surface, .coaching-card, .minimized-chat, .answer-progress svg, .chat-send:disabled svg.lucide-loader-circle { animation: none; }
-  .assistant-surface *, .resume-conversation { transition: none; scroll-behavior: auto; }
+  .assistant-surface, .coaching-card, .answer-progress svg, .chat-send:disabled svg.lucide-loader-circle { animation: none; }
+  .assistant-surface * { transition: none; scroll-behavior: auto; }
 }
 
 /* Shared people/deal previews in the workspace and conversation. */
@@ -240,7 +222,6 @@
   .stat-grid { display: grid; grid-template-columns: minmax(0, 1fr); margin: 0; padding: 0; overflow: visible; scroll-snap-type: none; }
   .stat { min-width: 0; }
   .sidebar .sidebar-search, .sidebar .chat-icon-button, .assistant-mobile .chat-icon-button { width: 44px; height: 44px; }
-  .assistant-entry { bottom: max(12px, env(safe-area-inset-bottom)); }
   .history-dialog, .history-edit, .command-dialog {
     position: fixed; inset: calc(var(--visual-top, 0px) + 12px) 0 auto; margin: 0 auto;
     max-height: calc(min(100dvh, var(--visual-height, 100dvh)) - 24px);

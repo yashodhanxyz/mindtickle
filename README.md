@@ -12,7 +12,7 @@ npm ci
 npm run dev
 ```
 
-Open `/floating` for the bottom-attached chat or `/column` for the integrated third column on the dev server URL. Each page has a fixed presentation and its own in-session conversation history, with no in-product layout switch. Refreshing resets the chats so reviewers can replay the assignment from a clean state. `/` remains a floating alias.
+Open `/floating` for the bottom-attached chat or `/column` for the integrated third column on the dev server URL. Each page has a fixed presentation and its own in-session conversation history, with no in-product layout switch. Start and reopen chats from the sidebar; the mobile hamburger opens the same controls. Refreshing resets the chats so reviewers can replay the assignment from a clean state. `/` remains a floating alias.
 
 ## Validate
 

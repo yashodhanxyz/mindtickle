@@ -237,7 +237,11 @@ This follow-up supersedes earlier persistence and mobile-integration limitations
 
 ## Assignment replay reset — 11 September 2026
 
-Conversation history is intentionally held in memory for the current page session. Refreshing either route returns to one blank conversation and the normal assistant entry point, allowing reviewers to replay the assignment without clearing browser data. In-session new, rename, pin, delete, draft, and conversation switching behavior remains unchanged.
+Conversation history is intentionally held in memory for the current page session. Refreshing either route returns to one blank conversation and a clean workspace, allowing reviewers to replay the assignment from New chat in the sidebar without clearing browser data. In-session new, rename, pin, delete, draft, and conversation switching behavior remains unchanged.
+
+## Sidebar-only chat entry — 11 September 2026
+
+Removed the first-time content-area prompt, closed-state Resume button, and minimized floating bar. New chat and saved chat rows in the desktop sidebar or mobile drawer are now the only chat entry points. Closing or explicitly minimizing returns desktop focus to the selected chat row (or New chat when the current chat is still empty); mobile returns focus to the hamburger button. Selecting a saved row reopens the same conversation and focuses its composer.
 
 ## Native chat identity — 11 September 2026
 

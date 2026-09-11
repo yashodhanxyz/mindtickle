@@ -8,7 +8,7 @@
  */
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { CommandMenu, commandKey } from "./CommandMenu";
-import { Menu, Sparkles, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { ConversationHistory, HistoryDialog, HistoryButton } from "./ConversationHistory";
 import { AssistantExperience } from "./AssistantExperience";
 import { useConversation } from "./useConversation";
@@ -17,8 +17,6 @@ import { dismissEntityPreviews } from "./EntityPreview";
 import { EntityMention, EntityText } from "./EntityMention";
 import type { AssistantLayout } from "./pages";
 import { Icons } from "./icons";
-
-export const DEFAULT_PROMPT = "How is Marcus doing on discovery calls this quarter?";
 
 const overviewSignals = [
   { label: "Calls reviewed", value: "18", context: "this week", trend: [42, 54, 48, 68, 74, 100], note: "Five reps have new moments ready to review." },
@@ -32,13 +30,10 @@ export function App({ layout }: { layout: AssistantLayout }) {
   const [sidebarIsCompact, setSidebarIsCompact] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDialogElement>(null);
-  const triggerRef = useRef<HTMLInputElement>(null);
-  const resumeRef = useRef<HTMLButtonElement>(null);
-  const minimizedRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
   const conversation = useConversation(layout);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [commandsOpen, setCommandsOpen] = useState(false);
-  const [hasOpened, setHasOpened] = useState(false);
   const [workspaceNotice, setWorkspaceNotice] = useState('');
   const viewport = useAssistantViewport();
   const conversationViewport = { ...viewport, isMobile: viewport.isMobile || (layout === "column" && viewport.width < 1100) };
@@ -60,22 +55,21 @@ export function App({ layout }: { layout: AssistantLayout }) {
   }, [mobileMenuOpen, viewport.isMobile]);
   useEffect(() => { if (!viewport.isMobile) setMobileMenuOpen(false); }, [viewport.isMobile]);
 
-  const invokeAssistant = () => {
-    dismissEntityPreviews();
-    const target = conversation.hasStarted ? "composer" : "heading";
-    if (!conversation.hasStarted && !conversation.draft.trim() && !hasOpened) conversation.send(DEFAULT_PROMPT);
-    setHasOpened(true);
-    setPresentation("open");
-    setFocusRequest((request) => ({ sequence: request.sequence + 1, target }));
-  };
+  const focusChatNavigation = useCallback(() => {
+    window.requestAnimationFrame(() => {
+      if (viewport.isMobile) mobileMenuButtonRef.current?.focus();
+      else (document.querySelector<HTMLButtonElement>('.conversation-history .history-row.selected .history-select')
+        ?? document.querySelector<HTMLButtonElement>('.conversation-history .history-new'))?.focus();
+    });
+  }, [viewport.isMobile]);
 
   const dismissAssistant = useCallback(() => {
     const focused = document.activeElement as HTMLElement | null;
     const keepWorkspaceFocus = !!focused?.closest('main, .sidebar');
     dismissEntityPreviews();
     setPresentation("closed");
-    if (!keepWorkspaceFocus) window.requestAnimationFrame(() => (resumeRef.current ?? triggerRef.current)?.focus());
-  }, []);
+    if (!keepWorkspaceFocus) focusChatNavigation();
+  }, [focusChatNavigation]);
 
   useEffect(() => {
     if (!assistantIsOpen || layout !== 'floating' || conversationViewport.isMobile) return;
@@ -107,14 +101,14 @@ export function App({ layout }: { layout: AssistantLayout }) {
   const minimizeAssistant = () => {
     dismissEntityPreviews();
     setPresentation("minimized");
-    window.requestAnimationFrame(() => minimizedRef.current?.focus());
+    focusChatNavigation();
   };
 
   const openThread = (id?: string) => {
     closeMobileMenu();
     dismissEntityPreviews();
     if (id) conversation.library.select(id); else conversation.library.create();
-    setHistoryOpen(false); setHasOpened(true); setPresentation("open");
+    setHistoryOpen(false); setPresentation("open");
     setFocusRequest(request => ({ sequence: request.sequence + 1, target: "composer" }));
   };
   const openHistory = () => { dismissEntityPreviews(); setHistoryOpen(true); };
@@ -139,7 +133,6 @@ export function App({ layout }: { layout: AssistantLayout }) {
       if (!active) return;
       closeMobileMenu();
       setHistoryOpen(false);
-      setHasOpened(true);
       setPresentation("open");
       setFocusRequest(request => ({ sequence: request.sequence + 1, target: "composer" }));
       requestAnimationFrame(() => document.querySelector<HTMLTextAreaElement>("#chat-draft")?.focus());
@@ -200,7 +193,7 @@ export function App({ layout }: { layout: AssistantLayout }) {
       <span className="sr-only" role="status">{workspaceNotice}</span>
       {viewport.isMobile ? <>
         <header className="mobile-topbar" inert={modalIsOpen}>
-          <button type="button" className="chat-icon-button" aria-label="Open menu" aria-haspopup="dialog" aria-expanded={mobileMenuOpen} aria-controls="mobile-navigation" onClick={() => setMobileMenuOpen(true)}><Menu size={22} /></button>
+          <button ref={mobileMenuButtonRef} type="button" className="chat-icon-button" aria-label="Open menu" aria-haspopup="dialog" aria-expanded={mobileMenuOpen} aria-controls="mobile-navigation" onClick={() => setMobileMenuOpen(true)}><Menu size={22} /></button>
           <a className="brand" href="#top" aria-label="Aria Sales Hub home"><img src="/aria-logo.png" alt="" width={26} height={26}/><span>Aria</span></a>
         </header>
         <dialog ref={mobileMenuRef} id="mobile-navigation" className="mobile-navigation" aria-label="Navigation and conversations"
@@ -266,23 +259,6 @@ export function App({ layout }: { layout: AssistantLayout }) {
           </div>
         </div>
 
-      <div className="assistant-entry" hidden={presentation !== "closed"}>
-      {conversation.hasStarted || hasOpened || conversation.draft.trim() ? <button ref={resumeRef} className="resume-conversation" type="button" onClick={invokeAssistant} aria-controls="assistant-conversation" aria-expanded={assistantIsOpen}>
-        <Sparkles size={19} aria-hidden="true" />Resume conversation
-      </button> : <form
-        className="assistant-trigger"
-        aria-label="Ask AI Assistant"
-        onSubmit={(event) => {
-          event.preventDefault();
-          invokeAssistant();
-        }}
-      >
-        <label className="sr-only" htmlFor="assistant-prompt">Initial coaching question</label>
-        <input ref={triggerRef} id="assistant-prompt" value={DEFAULT_PROMPT} readOnly />
-        <button className="icon-button optional-action" type="button" aria-label="Voice input" disabled><Icons.mic data-icon="inline-only" /></button>
-        <button className="icon-button primary" type="submit" aria-label="Ask AI Assistant"><Icons.arrowUp data-icon="inline-only" /></button>
-      </form>}
-      </div>
       </main>
 
       <AssistantExperience key={conversation.id} conversation={conversation} active={assistantIsOpen} layout={layout}
@@ -293,13 +269,6 @@ export function App({ layout }: { layout: AssistantLayout }) {
         onResume={() => openThread(conversation.id)} onHistory={openHistory}
         sidebarCompact={sidebarIsCompact} onToggleSidebar={() => setSidebarIsCompact(value => !value)}
         showSidebarControls={!viewport.isMobile} threads={conversation.history.threads} onSelect={openThread} />
-
-      {presentation === "minimized" && <div className="minimized-chat" onKeyDown={(event) => { if (event.key === "Escape") dismissAssistant(); }}>
-        <button ref={minimizedRef} className="minimized-restore" type="button" onClick={invokeAssistant} aria-label="Restore conversation" aria-controls="assistant-conversation" aria-expanded={false}>
-          <Sparkles size={18} aria-hidden="true" /><span><strong>Resume conversation</strong><small>{conversation.busy ? "Preparing reply…" : "Return to your chat"}</small></span>
-        </button>
-        <button className="chat-icon-button" type="button" aria-label="Close conversation" onClick={dismissAssistant}><X size={18} aria-hidden="true" /></button>
-      </div>}
     </div>
   );
 }
