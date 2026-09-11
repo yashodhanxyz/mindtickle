@@ -24,7 +24,7 @@ export function CommandMenu(props: Props) {
     requestAnimationFrame(action);
   };
   const actions: Command[] = [
-    {id: 'new', label: 'New conversation', detail: 'Start a fresh chat', icon: Plus, run: props.onNew},
+    {id: 'new', label: 'New chat', detail: 'Start a fresh chat', icon: Plus, run: props.onNew},
     {id: 'resume', label: 'Open current conversation', detail: 'Continue where you left off', icon: Sparkles, run: props.onResume},
     {id: 'history', label: 'Conversation history', detail: 'Revisit, rename, pin or delete chats', icon: MessagesSquare, run: props.onHistory},
     {id: 'sidebar', label: props.sidebarCompact ? 'Expand sidebar' : 'Compact sidebar', detail: 'Adjust your workspace', icon: PanelLeft, run: props.onToggleSidebar},

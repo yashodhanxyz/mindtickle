@@ -63,13 +63,13 @@ export function ConversationHistory({ conversation, onSelect, onNew, onDeleted, 
   const threads = history.threads.filter(t => t.state.hasStarted || t.state.draft.trim()).sort((a, b) => b.updatedAt - a.updatedAt);
   return <section className={`conversation-history${overlay ? ' history-overlay-content' : ''}`} aria-label="Conversations">
     {overlay && <div className="history-heading"><h2>Conversations</h2><button className="chat-icon-button" type="button" aria-label="Close conversation history" onClick={onClose}><X size={18} aria-hidden="true" /></button></div>}
-    <button ref={newButton} className="history-new" type="button" onClick={onNew}><Plus size={17} aria-hidden="true" />New conversation</button>
+    <button ref={newButton} className="history-new" type="button" onClick={onNew}><Plus size={17} aria-hidden="true" />New chat</button>
     {overlay && <button className="history-command-link" type="button" onClick={onCommands}>Search commands and shortcuts</button>}
     <div className="history-list">
       {threads.length === 0 && <p className="history-empty">Your conversations will appear here after you send a message.</p>}
       {[true, false].map(pinned => {
         const group = threads.filter(t => t.pinned === pinned);
-        return group.length > 0 && <div className="history-group" key={String(pinned)}><h3>{pinned ? 'Pinned' : 'Recent'}</h3>
+        return group.length > 0 && <div className="history-group" key={String(pinned)}><h3>{pinned ? 'Pinned' : 'Recent Chat'}</h3>
           {group.map(thread => <div className={`history-row${thread.id === history.activeId ? ' selected' : ''}`} key={thread.id}>
             <button className="history-select" type="button" aria-current={thread.id === history.activeId ? 'true' : undefined} onClick={() => onSelect(thread.id)} title={thread.title}>
               {thread.pinned && <Pin size={13} aria-hidden="true" />}<span>{thread.title}</span>{thread.state.busy ? <small aria-label="Reply in progress">•••</small> : !thread.state.hasStarted ? <small>Draft</small> : null}
