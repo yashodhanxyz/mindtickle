@@ -14,6 +14,10 @@ npm run dev
 
 Open `/floating` for the bottom-attached chat or `/column` for the integrated third column on the dev server URL. Each page has a fixed presentation and its own in-session conversation history, with no in-product layout switch. Start and reopen chats from the sidebar; the mobile hamburger opens the same controls. Refreshing resets the chats so reviewers can replay the assignment from a clean state. `/` remains a floating alias.
 
+## Deploy to Vercel
+
+Import this repository and set the Vercel project **Root Directory** to `design-engineer-take-home-v3`. Vercel detects the Vite build settings from that directory. The project-level `vercel.json` sends direct requests for `/column` and `/floating` to the SPA entry point so both presentation routes can be opened or refreshed directly.
+
 ## Validate
 
 From the app folder:
