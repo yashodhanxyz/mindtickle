@@ -1,3 +1,9 @@
+# QA iteration log
+
+This is a historical development log. Each entry records behaviour and verification at that stage; later changes supersede earlier descriptions. See the [main README](../README.md) for the submitted experience and commands to run current checks. Test counts below are snapshots, not a live status report. Screen-reader speech and physical-phone testing remain unverified.
+
+---
+
 # Current refinement — minimise only floating chat
 
 11 September 2026. The column header now has Close only, on desktop and mobile. Floating retains Minimize and Close. Column users close/resume to return to their workspace; drafts and history remain saved. Verified the column header in the browser and the TypeScript/production build.

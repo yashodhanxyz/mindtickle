@@ -1,52 +1,75 @@
-# Mindtickle design engineer assignment
+# Aria Sales Hub — Mindtickle assignment
 
-Private workspace for the Aria Sales Hub AI Assistant take-home assignment.
+A conversational coaching experience for Jordan, a sales manager reviewing Marcus’s discovery calls. Built with React, TypeScript, and Vite inside the supplied Aria shell.
 
-The [original assignment README](design-engineer-take-home-v3/README.md) is the source of truth for scope, required behaviour, and submission guidance. The starter app lives in `design-engineer-take-home-v3/`.
+## Try the two options
+
+| Option | Live preview | Approach |
+| --- | --- | --- |
+| Floating chat | [Open floating chat](https://mindtickle-xi.vercel.app/floating) | Bottom-attached chat that can be minimised while working. |
+| Integrated column | [Open integrated column](https://mindtickle-xi.vercel.app/column) | Chat opens beside the workspace, which reflows to make room. |
+
+Both adapt to a full-height conversation on mobile. Each route is a separate concept with its own in-session chat history; there is no layout switch inside the experience.
+
+## How I approached the assignment
+
+I started with the supplied README and tried using Mobbin MCP and AI to research and develop options. The initial concepts were too focused on displaying one answer. I broke the journey into smaller parts: ask, read, inspect evidence, follow up, and return to work. That led to the two conversational layouts above.
+
+I then refined the experience through desktop and mobile reviews: keeping chat visually part of Aria, placing evidence beneath the relevant scores, preserving conversations and drafts, and improving opening, closing, minimising, and streamed replies. AI helped with implementation and review; I directed the interaction decisions and revisions.
+
+Read [DECISIONS.md](design-engineer-take-home-v3/DECISIONS.md) for the short personal account, priorities, and next improvements. The [original assignment brief](design-engineer-take-home-v3/README.md) remains unchanged.
 
 ## Run locally
 
+Use **Node.js 22** and npm, matching CI. A root `.nvmrc` is included for nvm users. No API keys, environment variables, or backend setup are needed.
+
 ```bash
+git clone https://github.com/yashodhanxyz/mindtickle.git
+cd mindtickle
+# If you use nvm:
+nvm install
+nvm use
 cd design-engineer-take-home-v3
 npm ci
 npm run dev
 ```
 
-Open `/floating` for the bottom-attached chat or `/column` for the integrated third column on the dev server URL. Each page has a fixed presentation and its own in-session conversation history, with no in-product layout switch. Start and reopen chats from the sidebar; the mobile hamburger opens the same controls. Refreshing resets the chats so reviewers can replay the assignment from a clean state. `/` remains a floating alias.
+Cloning requires access to this private repository. If you received a source ZIP, extract it and start from the app folder instead.
 
-## Deploy to Vercel
+Open the URL printed by Vite (normally `http://localhost:5173`) with `/floating` or `/column` appended. `/` also opens the floating option. If the port is occupied, use the port Vite prints.
 
-Import this repository and set the Vercel project **Root Directory** to `design-engineer-take-home-v3`. Vercel detects the Vite build settings from that directory. The project-level `vercel.json` sends direct requests for `/column` and `/floating` to the SPA entry point so both presentation routes can be opened or refreshed directly.
+## Walk through the experience
 
-## Validate
+1. Start a chat using the supplied question: **“How is Marcus doing on discovery calls this quarter?”**
+2. Watch the progress status, answer, and coaching card arrive.
+3. Select **View evidence** beside **Skill assessment** to inspect the support beneath each score.
+4. Ask a follow-up, such as **“What supports the stakeholder-discovery concern?”**
+5. Minimise and restore floating chat, or close either option and reopen it from sidebar history. On mobile, use the hamburger menu to reach history.
+6. Refresh to reset the demo and try again.
 
-From the app folder:
+The original answer uses the supplied fixed stream and unchanged coaching data. Follow-ups are bounded local demo replies, not a connected AI model. Extra entity context is fictional. Chats and drafts last for the page session; refresh clears them. Host navigation is demonstration context, not a complete sales application.
+
+## Checks and production build
+
+Run these from `design-engineer-take-home-v3/`:
 
 ```bash
 npm test
 npm run typecheck
 npm run build
+npm run preview
 ```
 
-GitHub Actions runs these checks on pushes and pull requests.
+`preview` serves the production build locally; use its printed URL with either route. GitHub Actions runs a clean install, tests, type checking, and build on pushes and pull requests.
 
-## Project contents
+Browser QA from development is recorded in the [QA log](design-engineer-take-home-v3/design-qa.md). Physical-phone keyboards and actual screen-reader behaviour still need validation.
 
-- [Command menu and shortcuts](docs/design/shortcuts/README.md): functional Search, Command/Control K, keyboard guide, and sidebar refinement.
-- [Conversation history implementation and QA](docs/design/conversation-history/README.md): multiple in-session conversations, drafts, sidebar history, and desktop/mobile checks.
-- [Separate pages and shared quick views](docs/design/separate-pages/README.md): previous integration and entity-context checks.
-- [Entity content research](docs/research/entity-context.md): source-informed fictional coaching and deal context.
-- [Earlier conversation layouts](docs/design/implementation-2026-09-10.md): bottom-attached floating chat and an integrated third column, with shared mobile behaviour.
-- [Design storyboards](docs/design/conversation-storyboards-2026-09-10.md): the earlier visual comparison and detailed interaction specification.
-- [Supporting research](docs/research/persistent-conversation-directions-2026-09-10.md): Mobbin patterns, source evidence, and design tradeoffs.
-- `design-engineer-take-home-v3/src/`: the supplied app shell and both working assistant layouts.
-- `design-engineer-take-home-v3/mock/`: the fixed answer stream, types, and tests.
-- `design-engineer-take-home-v3/public/`: the supplied logo, font, and font license.
-- `design-engineer-take-home-v3/package-lock.json`: locked dependencies for reproducible installation.
-- `.github/workflows/ci.yml`: validation configured for the app folder.
+## Repository guide
 
-Source, assets, configuration, tests, and assignment documentation are versioned. Installed dependencies, build output, local environment files, and macOS metadata are excluded.
+- `design-engineer-take-home-v3/src/` — assistant, shell integration, conversation state, styles, and tests. Start with `AssistantExperience.tsx` and `App.tsx`.
+- `design-engineer-take-home-v3/mock/` — supplied answer stream, types, and contract tests.
+- `design-engineer-take-home-v3/public/` — supplied brand assets and font licence.
+- [Design and research notes](docs/README.md) — supporting iteration history, screenshots, and checks.
+- `.github/workflows/ci.yml` — automated validation.
 
-- [Review fixes and mobile verification](docs/design/review-fixes/README.md): cross-tab persistence, streaming scroll, keyboard focus, and narrow-screen repairs.
-- [Coaching surface and motion refinement](docs/design/motion-refinement/README.md): neutral result hierarchy, reversible panel motion, evidence disclosure, reduced-motion behavior, and final desktop/mobile captures.
-- [Sidebar hover refinement](docs/design/sidebar-hover/README.md): unified pointer states, stable selected-chat styling, progressive overflow actions, and keyboard verification.
+For Vercel, set the project Root Directory to `design-engineer-take-home-v3`. Its `vercel.json` supports direct visits and refreshes on both routes.
