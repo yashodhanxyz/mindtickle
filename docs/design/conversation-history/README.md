@@ -7,14 +7,14 @@
 1. Open either option and ask the supplied Marcus question to see the original streamed assessment.
 2. Choose **New conversation** in the sidebar or the plus button in chat. Ask about Lena, Didi, Brookfield, or Percepto without receiving an unrelated Marcus assessment.
 3. Revisit a conversation from **AI conversations**. Use its options menu to rename, pin/unpin, or delete. Delete requires an explicit confirmation with the conversation name.
-4. Enter a draft, switch conversations, and return. Messages, draft, evidence disclosure, and reading position belong to each thread. Closing, minimising, and refreshing retain saved work. A draft-only conversation also resumes without automatically submitting Marcus's question.
+4. Enter a draft, switch conversations, and return. Messages, draft, evidence disclosure, and reading position belong to each thread for the current page session. Closing and minimising retain work; refreshing intentionally resets all chats so an assignment reviewer can replay the experience.
 5. On mobile or with a compact sidebar, use **Conversations** to open history. Escape closes the innermost menu/dialog first. One conversation is visible at a time.
 
 Empty conversations are reused to avoid accumulating blank entries. Nonempty unsent drafts appear with a Draft label. Pinned conversations are grouped above Recent; viewing an older thread does not change its recency. Titles derive from the first question and remain stable after manual rename. Storage failure is visible; the session can continue in memory.
 
 ## Implementation choices
 
-A library owns controllers keyed by conversation ID; selection only changes which controller is displayed. Background responses therefore finish in their original thread. Deletion disposes that controller so delayed stream events cannot recreate it. Versioned local storage keeps each option separate. Incomplete responses restored after a reload are labelled interrupted and allow another question.
+A library owns controllers keyed by conversation ID; selection only changes which controller is displayed. Background responses therefore finish in their original thread. Deletion disposes that controller so delayed stream events cannot recreate it. The application creates this library in memory, giving every refresh a clean state.
 
 The sidebar extends existing spacing, colors, typography, radii, and icon family. Native dialogs and popovers provide top-layer placement, with explicit keyboard navigation, focus containment and restoration. No dependency or drop-in assistant kit was added.
 
@@ -50,6 +50,6 @@ The previous separate-page desktop answer captures and current captures were ope
 
 ## Boundaries
 
-History is saved on this browser/device, with no account or cloud sync. Same-origin tabs now synchronize field changes without replacing full history; see the [review fixes](../review-fixes/README.md). Clearing browser storage removes it. Follow-ups remain authored demo responses grounded in the fictional workspace, not a connected general-purpose model. The exact Marcus assessment is the only scored fixture.
+History lasts only for the current page session. Refreshing clears conversations and drafts by design. Follow-ups remain authored demo responses grounded in the fictional workspace, not a connected general-purpose model. The exact Marcus assessment is the only scored fixture.
 
 Browser viewport and keyboard tests do not cover physical touch/IME/software keyboards, VoiceOver/NVDA speech, forced colors, OS reduced-motion switching, or a full numerical contrast audit. No full accessibility certification is claimed. A public deployment and recording remain submission-preparation steps.

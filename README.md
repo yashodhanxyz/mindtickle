@@ -12,7 +12,7 @@ npm ci
 npm run dev
 ```
 
-Open `/floating` for the bottom-attached chat or `/column` for the integrated third column on the dev server URL. Each page has a fixed presentation and its own saved conversation history, with no in-product layout switch. Conversations and drafts persist locally on this browser. `/` remains a floating alias.
+Open `/floating` for the bottom-attached chat or `/column` for the integrated third column on the dev server URL. Each page has a fixed presentation and its own in-session conversation history, with no in-product layout switch. Refreshing resets the chats so reviewers can replay the assignment from a clean state. `/` remains a floating alias.
 
 ## Validate
 
@@ -29,7 +29,7 @@ GitHub Actions runs these checks on pushes and pull requests.
 ## Project contents
 
 - [Command menu and shortcuts](docs/design/shortcuts/README.md): functional Search, Command/Control K, keyboard guide, and sidebar refinement.
-- [Conversation history implementation and QA](docs/design/conversation-history/README.md): multiple conversations, saved drafts, sidebar history, and desktop/mobile checks.
+- [Conversation history implementation and QA](docs/design/conversation-history/README.md): multiple in-session conversations, drafts, sidebar history, and desktop/mobile checks.
 - [Separate pages and shared quick views](docs/design/separate-pages/README.md): previous integration and entity-context checks.
 - [Entity content research](docs/research/entity-context.md): source-informed fictional coaching and deal context.
 - [Earlier conversation layouts](docs/design/implementation-2026-09-10.md): bottom-attached floating chat and an integrated third column, with shared mobile behaviour.

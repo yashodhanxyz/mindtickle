@@ -235,6 +235,10 @@ This follow-up supersedes earlier persistence and mobile-integration limitations
 
 **Result: scoped fixes verified; device-specific verification remains a stated limitation.**
 
+## Assignment replay reset — 11 September 2026
+
+Conversation history is intentionally held in memory for the current page session. Refreshing either route returns to one blank conversation and the normal assistant entry point, allowing reviewers to replay the assignment without clearing browser data. In-session new, rename, pin, delete, draft, and conversation switching behavior remains unchanged.
+
 ## Native chat identity — 11 September 2026
 
 Removed repeated Aria and assistant branding from the chat header and response rows. The conversation content and coaching card now share one content edge, while the title remains available in sidebar history. A hidden “Conversation” heading and “Assistant response” labels preserve accessible structure. The minimized floating state uses “Resume conversation” with the existing Sparkles icon.

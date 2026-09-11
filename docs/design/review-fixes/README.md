@@ -1,5 +1,7 @@
 # Review fixes and mobile QA — 11 September 2026
 
+> Current assignment behavior supersedes the persistence notes below: chat history is now intentionally session-only and resets on refresh so reviewers can replay the experience.
+
 The approved review findings and mobile integration issues are addressed in both separate options. The assignment README and fixed mock payload are unchanged.
 
 ## Changes

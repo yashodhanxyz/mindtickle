@@ -62,7 +62,7 @@ export function createConversationLibrary(layout: AssistantLayout, storage?: Sto
   let timer: ReturnType<typeof setTimeout> | undefined;
   let applying = false;
   let savedActiveId = '';
-  let snapshot: LibrarySnapshot = { activeId: '', threads: [], storageError: !storage };
+  let snapshot: LibrarySnapshot = { activeId: '', threads: [], storageError: false };
   const notify = () => listeners.forEach(listener => listener());
   const fail = () => { snapshot = { ...snapshot, storageError: true }; notify(); };
 
