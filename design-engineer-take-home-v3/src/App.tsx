@@ -8,7 +8,7 @@
  */
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { CommandMenu, commandKey } from "./CommandMenu";
-import { Menu, X } from "lucide-react";
+import { ChevronUp, Menu, X } from "lucide-react";
 import { ConversationHistory, HistoryDialog, HistoryButton } from "./ConversationHistory";
 import { AssistantExperience } from "./AssistantExperience";
 import { useConversation } from "./useConversation";
@@ -31,6 +31,7 @@ export function App({ layout }: { layout: AssistantLayout }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDialogElement>(null);
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const minimizedChatRef = useRef<HTMLButtonElement>(null);
   const conversation = useConversation(layout);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [commandsOpen, setCommandsOpen] = useState(false);
@@ -101,7 +102,13 @@ export function App({ layout }: { layout: AssistantLayout }) {
   const minimizeAssistant = () => {
     dismissEntityPreviews();
     setPresentation("minimized");
-    focusChatNavigation();
+    requestAnimationFrame(() => minimizedChatRef.current?.focus());
+  };
+
+  const restoreAssistant = () => {
+    dismissEntityPreviews();
+    setPresentation("open");
+    setFocusRequest(request => ({ sequence: request.sequence + 1, target: "composer" }));
   };
 
   const openThread = (id?: string) => {
@@ -263,6 +270,13 @@ export function App({ layout }: { layout: AssistantLayout }) {
 
       <AssistantExperience key={conversation.id} conversation={conversation} active={assistantIsOpen} layout={layout}
         onDismiss={dismissAssistant} onMinimize={minimizeAssistant} viewport={conversationViewport} focusRequest={focusRequest} />
+
+      {layout === "floating" && presentation === "minimized" && <div className="assistant-minimized" role="group" aria-label="Minimized chat">
+        <button ref={minimizedChatRef} className="assistant-minimized-open" type="button" aria-controls="assistant-conversation" aria-expanded="false" onClick={restoreAssistant}>
+          <span>Chat</span><span className="assistant-minimized-hint">Resume</span><ChevronUp size={18} aria-hidden="true" />
+        </button>
+        <button className="chat-icon-button" type="button" aria-label="Close minimized chat" title="Close chat" onClick={dismissAssistant}><X size={18} aria-hidden="true" /></button>
+      </div>}
 
       <HistoryDialog {...historyProps} open={historyOpen} onClose={() => setHistoryOpen(false)} />
       <CommandMenu open={commandsOpen} onClose={() => setCommandsOpen(false)} onNew={() => openThread()}

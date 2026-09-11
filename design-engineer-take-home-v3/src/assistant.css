@@ -24,6 +24,12 @@
   transform: translate3d(0, 18px, 0) scale(.985); transform-origin: right bottom;
 }
 .assistant-column { position: sticky; top: 0; grid-column: 3; grid-row: 1; height: 100dvh; border-left: 1px solid var(--border); transform: translate3d(24px, 0, 0); }
+.assistant-minimized { position: fixed; z-index: 60; right: 24px; bottom: 0; display: flex; align-items: center; width: min(22rem, calc(100vw - 48px)); min-height: 56px; padding: 6px 8px 6px 16px; border: 1px solid var(--border); border-bottom: 0; border-radius: 14px 14px 0 0; background: var(--background); box-shadow: var(--shadow-lg); animation: minimized-chat-enter var(--duration-base) var(--ease-out); }
+.assistant-minimized-open { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; min-height: 42px; padding: 0; border: 0; background: transparent; color: var(--foreground); text-align: left; }
+.assistant-minimized-open > span:first-child { font-weight: 600; }
+.assistant-minimized-hint { margin-left: auto; color: var(--text-secondary); font-size: 12px; }
+.assistant-minimized-open > svg { flex: none; color: var(--text-secondary); }
+.assistant-minimized:hover { border-color: color-mix(in oklch, var(--foreground) 12%, var(--border)); }
 .chat-header { display: flex; align-items: center; justify-content: space-between; flex: none; min-height: 56px; padding: 8px 12px; border-bottom: 1px solid var(--border); background: var(--background); }
 .chat-title { margin: 0; padding-left: 4px; font-size: 15px; font-weight: 600; line-height: 1.4; letter-spacing: -0.01em; }
 .chat-actions { display: flex; gap: 2px; align-items: center; }
@@ -39,14 +45,16 @@
 .message-assistant { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
 .answer-copy { min-width: 0; padding-top: 1px; }
 .answer-copy .answer-label { margin-bottom: 5px; font-size: 12px; color: var(--text-secondary); }
-.answer-copy > p:not(.answer-progress) { animation: answer-reveal var(--duration-base) var(--ease-out); }
+.answer-cursor { display: inline-block; width: 5px; height: 1em; margin-left: 2px; border-radius: 999px; background: currentColor; vertical-align: -0.14em; opacity: .5; animation: answer-cursor-pulse 900ms ease-in-out infinite; }
 .answer-progress { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 14px; }
 .answer-progress svg, .chat-send:disabled svg.lucide-loader-circle { animation: assistant-spin 1.3s linear infinite; }
 .coaching-card { grid-column: 1 / -1; padding: 18px; border: 1px solid var(--border); border-radius: 13px; background: var(--secondary); animation: card-reveal var(--duration-base) var(--ease-out); }
 .coaching-card h3 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.02em; }
 .coaching-card .card-period { margin: 2px 0 12px; font-size: 12px; color: var(--text-secondary); }
 .coaching-card .card-summary { line-height: 1.5; }
-.coaching-skills { margin: 16px 0; padding-top: 12px; border-top: 1px solid var(--border); }
+.coaching-skills-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; padding-top: 10px; border-top: 1px solid var(--border); }
+.coaching-skills-heading h4 { margin: 0; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.coaching-skills { margin: 4px 0 16px; }
 .coaching-skill { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 2px 12px; padding: 5px 0; }
 .coaching-skill dt { color: var(--text-secondary); font-size: 14px; }
 .coaching-skill dd { margin: 0; }
@@ -56,8 +64,8 @@
 .coaching-skill .skill-evidence > span { min-height: 0; overflow: hidden; padding-left: 10px; border-left: 2px solid var(--accent-muted); font-size: 13px; line-height: 1.55; }
 .coaching-card .coaching-next-step { padding-top: 14px; border-top: 1px solid var(--border); font-size: 14px; line-height: 1.55; }
 .coaching-next-step strong { font-weight: 600; }
-.evidence-toggle { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; min-height: 38px; margin-top: 15px; padding: 7px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--background); font-size: 12px; text-align: left; }
-.evidence-toggle:hover { background: var(--secondary); }
+.evidence-toggle { display: inline-flex; align-items: center; gap: 5px; min-height: 32px; margin: 0 -7px 0 0; padding: 5px 7px; border: 0; border-radius: 7px; background: transparent; color: var(--primary); font-size: 12px; font-weight: 500; white-space: nowrap; }
+.evidence-toggle:hover { background: var(--background); }
 .evidence-toggle svg { transition: transform 140ms var(--ease-out); }
 .evidence-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
 .chat-footer { flex: none; border-top: 1px solid var(--border); padding: 14px 14px max(10px, env(safe-area-inset-bottom)); background: var(--background); }
@@ -89,9 +97,11 @@
   .chat-actions { gap: 0; }
   .assistant-mobile .chat-icon-button { width: 32px; }
   .coaching-card { padding: 16px; }
+  .assistant-minimized { right: 12px; width: calc(100vw - 24px); min-height: 60px; padding-left: 14px; padding-bottom: max(6px, env(safe-area-inset-bottom)); }
 }
 @keyframes message-reveal { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes answer-reveal { from { opacity: 0; } to { opacity: 1; } }
+@keyframes answer-cursor-pulse { 0%, 100% { opacity: .25; } 50% { opacity: .65; } }
+@keyframes minimized-chat-enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes card-reveal { from { opacity: 0; transform: translateY(8px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes latest-reply-enter { from { opacity: 0; transform: translate(-50%, 6px); } to { opacity: 1; transform: translate(-50%, 0); } }
 @keyframes assistant-spin { to { transform: rotate(360deg); } }
@@ -100,7 +110,7 @@
   .app-shell { transition: none; }
   .assistant-surface { transition: opacity 80ms linear, visibility 0s linear 80ms; transform: none; }
   .assistant-surface.is-active { transition-delay: 0s; }
-  .coaching-card, .message-user, .answer-copy > p, .new-reply, .answer-progress svg, .chat-send:disabled svg.lucide-loader-circle { animation: none; }
+  .coaching-card, .message-user, .answer-cursor, .assistant-minimized, .new-reply, .answer-progress svg, .chat-send:disabled svg.lucide-loader-circle { animation: none; }
   .coaching-skill .skill-evidence { transition: none; }
   .assistant-surface * { transition: none; scroll-behavior: auto; }
 }

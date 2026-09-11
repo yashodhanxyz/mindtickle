@@ -17,11 +17,41 @@ type Props = {
   focusRequest: { sequence: number; target: "heading" | "composer" };
 };
 
+function StreamingAnswerText({ text, complete }: { text: string; complete: boolean }) {
+  const tokens = text.match(/\S+\s*/g) ?? [];
+  const [visibleCount, setVisibleCount] = useState(() => text && complete ? tokens.length : 0);
+
+  useEffect(() => {
+    if (visibleCount > tokens.length) {
+      setVisibleCount(tokens.length);
+      return;
+    }
+    if (visibleCount >= tokens.length) return;
+    const timer = window.setTimeout(() => {
+      setVisibleCount(count => Math.min(count + 1, tokens.length));
+    }, visibleCount === 0 ? 0 : 28);
+    return () => window.clearTimeout(timer);
+  }, [text, tokens.length, visibleCount]);
+
+  return <p className={visibleCount < tokens.length || !complete ? "answer-streaming" : undefined}>
+    <EntityText text={tokens.slice(0, visibleCount).join("")} />
+    {(visibleCount < tokens.length || !complete) && <span className="answer-cursor" aria-hidden="true" />}
+  </p>;
+}
+
 function CoachingCard({ card, expanded, onToggle }: { card: CoachingCardData; expanded: boolean; onToggle: () => void }) {
   return <article className="coaching-card" aria-labelledby="coaching-card-title">
     <h3 id="coaching-card-title"><EntityMention entityId="marcus" label={card.rep} inline /></h3>
     <p className="card-period">{card.period}</p>
     <p className="card-summary">{card.summary}</p>
+    <div className="coaching-skills-heading">
+      <h4>Skill assessment</h4>
+      <button className="evidence-toggle" type="button" aria-expanded={expanded}
+        aria-controls={card.rows.map((row) => `evidence-${row.id}`).join(" ")} onClick={onToggle}>
+        <span>{expanded ? "Hide evidence" : "View evidence"}</span>
+        <ChevronDown size={15} aria-hidden="true" />
+      </button>
+    </div>
     <dl className="coaching-skills">
       {card.rows.map((row) => <div className="coaching-skill" key={row.id}>
         <dt>{row.skill}</dt><dd className="skill-score">{row.score.toFixed(1)}</dd>
@@ -31,11 +61,6 @@ function CoachingCard({ card, expanded, onToggle }: { card: CoachingCardData; ex
       </div>)}
     </dl>
     <p className="coaching-next-step"><strong>Next step:</strong> <EntityText text={card.nextStep} /></p>
-    <button className="evidence-toggle" type="button" aria-expanded={expanded}
-      aria-controls={card.rows.map((row) => `evidence-${row.id}`).join(" ")} onClick={onToggle}>
-      <span>{expanded ? "Hide supporting evidence" : "Show supporting evidence"}</span>
-      <ChevronDown size={16} aria-hidden="true" />
-    </button>
   </article>;
 }
 
@@ -185,7 +210,7 @@ export function AssistantExperience({ conversation, active, layout, onDismiss, o
             {message.role === "user" ? <><span className="sr-only">You: </span><p><EntityText text={message.text} /></p></> : <>
               <div className="answer-copy"><span className="sr-only">Assistant response: </span>
                 {message.label && <p className="answer-label">{message.label}</p>}
-                {message.text && <p><EntityText text={message.text} /></p>}
+                {message.text && <StreamingAnswerText text={message.text} complete={message.complete} />}
                 {!message.text && !message.complete && busy && <p className="answer-progress"><LoaderCircle size={16} aria-hidden="true" />{status || "Preparing your answer…"}</p>}
               </div>
               {message.card && <CoachingCard card={message.card} expanded={evidenceOpen} onToggle={() => setEvidenceOpen(!evidenceOpen)} />}
