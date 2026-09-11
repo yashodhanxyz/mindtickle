@@ -168,7 +168,7 @@ export function AssistantExperience({ conversation, active, layout, onDismiss, o
     aria-labelledby="assistant-title" onKeyDown={containMobileFocus}
     style={viewport.isMobile ? { "--visual-height": `${viewport.height}px`, "--visual-top": `${viewport.top}px` } as CSSProperties : undefined}>
     <header className="chat-header">
-      <h2 ref={headingRef} tabIndex={-1} id="assistant-title" className="sr-only">Conversation</h2>
+      <h2 ref={headingRef} tabIndex={-1} id="assistant-title" className={layout === "column" ? "chat-title" : "sr-only"}>{layout === "column" ? "Chat" : "Conversation"}</h2>
       <div className="chat-actions">
         {layout === "floating" && <button className="chat-icon-button" type="button" aria-label="Minimize conversation" title="Minimize conversation" onClick={onMinimize}><Minus size={18} aria-hidden="true" /></button>}
         <button className="chat-icon-button" type="button" aria-label="Close conversation" title="Close conversation (Escape)" onClick={onDismiss}><X size={18} aria-hidden="true" /></button>
