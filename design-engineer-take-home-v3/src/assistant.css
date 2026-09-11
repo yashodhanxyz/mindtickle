@@ -136,22 +136,20 @@
 .conversation-history { display: flex; flex-direction: column; min-height: 0; flex: 1; padding: 16px 0 0; border-top: 1px solid var(--border); margin-top: 12px; }
 .history-heading { display: flex; justify-content: space-between; align-items: center; padding: 0 8px; }
 .history-heading h2 { font-size: 12px; color: var(--text-secondary); font-weight: 600; margin: 0 0 10px; }
-.history-new { display: flex; align-items: center; gap: 8px; min-height: 38px; border: 1px solid var(--border); background: var(--background); border-radius: 8px; padding: 8px 10px; text-align: left; font-size: 12px; }
-.history-new:hover, .history-more:hover { background: var(--secondary); }
+.history-new { display: flex; align-items: center; gap: 8px; min-height: 40px; border: 1px solid var(--border); background: var(--background); border-radius: 8px; padding: 8px 10px; text-align: left; font-size: 12px; transition: background-color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out); }
 .history-command-link { padding: 10px 8px; border: 0; background: transparent; color: var(--text-secondary); text-align: left; font-size: 12px; }
 .history-command-link:hover { color: var(--primary); }
 .history-list { overflow-y: auto; min-height: 0; flex: 1; padding: 5px 0; }
 .history-group h3 { font-size: 11px; color: var(--text-secondary); font-weight: 500; margin: 12px 8px 5px; }
-.history-row { display: flex; align-items: center; border-radius: 7px; min-width: 0; }
+.history-row { display: flex; align-items: center; border-radius: 7px; min-width: 0; transition: background-color var(--duration-fast) var(--ease-out); }
 .history-row.selected { background: var(--accent-muted); }
-.history-row:hover { background: var(--secondary); }
 .history-select { display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1; padding: 10px 7px; min-height: 40px; font-size: 12px; text-align: left; border: 0; background: transparent; }
 .history-select > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .history-select small { font-size: 10px; color: var(--text-secondary); margin-left: auto; }
-.history-more { flex: none; display: grid; place-items: center; width: 30px; height: 32px; border: 0; border-radius: 6px; background: transparent; color: var(--text-secondary); }
+.history-more { flex: none; display: grid; place-items: center; width: 30px; height: 32px; border: 0; border-radius: 6px; background: transparent; color: var(--text-secondary); transition: opacity var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out); }
 .history-menu { position: fixed; inset: auto; margin: 0; width: 170px; padding: 5px; border: 1px solid var(--border); border-radius: 10px; background: var(--popover); color: var(--foreground); box-shadow: var(--shadow-lg); }
-.history-menu button { display: block; width: 100%; text-align: left; border: 0; border-radius: 5px; background: transparent; padding: 9px 12px; font-size: 13px; }
-.history-menu button:hover, .history-menu button:focus { background: var(--secondary); }
+.history-menu button { display: block; width: 100%; text-align: left; border: 0; border-radius: 5px; background: transparent; padding: 9px 12px; font-size: 13px; transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out); }
+.history-menu button:focus-visible { background: var(--sidebar-hover); }
 .danger-text { color: #ae2431; }
 .history-empty, .history-storage { font-size: 11px; color: var(--text-secondary); line-height: 1.5; margin: 10px 8px; }
 .history-storage { flex: none; margin-bottom: 0; }
@@ -179,7 +177,23 @@
 .chat-starters button { padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--background); text-align: left; font-size: 13px; }
 .chat-starters button:hover { background: var(--secondary); }
 .sidebar-search { text-align: left; flex-shrink: 0; }
-.sidebar-search:hover { background: var(--secondary); }
+@media (hover: hover) and (pointer: fine) {
+  .history-new:hover {
+    border-color: color-mix(in oklch, var(--foreground) 12%, var(--border));
+    background: var(--sidebar-hover);
+    color: var(--foreground);
+  }
+  .history-row:not(.selected):hover { background: var(--sidebar-hover); }
+  .history-row.selected:hover { background: var(--accent-muted); }
+  .history-more:hover,
+  .history-menu button:hover { background: color-mix(in oklch, var(--foreground) 7%, transparent); color: var(--foreground); }
+  .history-more { opacity: 0; }
+  .history-row:hover .history-more,
+  .history-row:focus-within .history-more { opacity: 1; }
+}
+.history-new:active,
+.history-row:not(.selected):active { background: var(--sidebar-pressed); }
+.history-row:not(.selected):focus-within { background: var(--sidebar-hover); }
 .command-dialog { width: min(560px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: 0; border: 1px solid var(--border); border-radius: 16px; background: var(--background); color: var(--foreground); box-shadow: var(--shadow-lg); overflow: auto; }
 .command-dialog::backdrop { background: rgb(0 0 0 / .22); }
 .command-search { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--border); }

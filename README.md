@@ -45,3 +45,4 @@ Source, assets, configuration, tests, and assignment documentation are versioned
 
 - [Review fixes and mobile verification](docs/design/review-fixes/README.md): cross-tab persistence, streaming scroll, keyboard focus, and narrow-screen repairs.
 - [Coaching surface and motion refinement](docs/design/motion-refinement/README.md): neutral result hierarchy, reversible panel motion, evidence disclosure, reduced-motion behavior, and final desktop/mobile captures.
+- [Sidebar hover refinement](docs/design/sidebar-hover/README.md): unified pointer states, stable selected-chat styling, progressive overflow actions, and keyboard verification.
