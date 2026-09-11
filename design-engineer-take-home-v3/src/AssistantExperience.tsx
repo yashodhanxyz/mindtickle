@@ -168,8 +168,7 @@ export function AssistantExperience({ conversation, active, layout, onDismiss, o
     aria-labelledby="assistant-title" onKeyDown={containMobileFocus}
     style={viewport.isMobile ? { "--visual-height": `${viewport.height}px`, "--visual-top": `${viewport.top}px` } as CSSProperties : undefined}>
     <header className="chat-header">
-      <img className="chat-brand" src="/aria-logo.png" alt="" width="32" height="32" />
-      <div className="chat-heading"><h2 ref={headingRef} tabIndex={-1} id="assistant-title">AI Assistant</h2><p title={conversation.title}>{conversation.title}</p></div>
+      <h2 ref={headingRef} tabIndex={-1} id="assistant-title" className="sr-only">Conversation</h2>
       <div className="chat-actions">
         {layout === "floating" && <button className="chat-icon-button" type="button" aria-label="Minimize conversation" title="Minimize conversation" onClick={onMinimize}><Minus size={18} aria-hidden="true" /></button>}
         <button className="chat-icon-button" type="button" aria-label="Close conversation" title="Close conversation (Escape)" onClick={onDismiss}><X size={18} aria-hidden="true" /></button>
@@ -182,8 +181,7 @@ export function AssistantExperience({ conversation, active, layout, onDismiss, o
           {!conversation.hasStarted && <div className="chat-empty"><h3>What would you like to work on?</h3><p>Review coaching or prepare for a deal conversation.</p><div className="chat-starters">{[ASSESSMENT_PROMPT, "Tell me about Lena Ortiz", "Help me prepare for the next Brookfield call"].map(prompt => <button type="button" key={prompt} onClick={() => { if (send(prompt)) composerRef.current?.focus(); }}>{prompt}</button>)}</div></div>}
           {messages.map((message) => <div key={message.id} data-message-id={message.id} className={`chat-message message-${message.role}`}>
             {message.role === "user" ? <><span className="sr-only">You: </span><p><EntityText text={message.text} /></p></> : <>
-              <img className="answer-avatar" src="/aria-logo.png" alt="" width="26" height="26" />
-              <div className="answer-copy"><span className="sr-only">AI Assistant: </span>
+              <div className="answer-copy"><span className="sr-only">Assistant response: </span>
                 {message.label && <p className="answer-label">{message.label}</p>}
                 {message.text && <p><EntityText text={message.text} /></p>}
                 {!message.text && !message.complete && busy && <p className="answer-progress"><LoaderCircle size={16} aria-hidden="true" />{status || "Preparing your answer…"}</p>}

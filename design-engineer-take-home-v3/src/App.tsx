@@ -295,10 +295,10 @@ export function App({ layout }: { layout: AssistantLayout }) {
         showSidebarControls={!viewport.isMobile} threads={conversation.history.threads} onSelect={openThread} />
 
       {presentation === "minimized" && <div className="minimized-chat" onKeyDown={(event) => { if (event.key === "Escape") dismissAssistant(); }}>
-        <button ref={minimizedRef} className="minimized-restore" type="button" onClick={invokeAssistant} aria-label="Restore AI Assistant conversation" aria-controls="assistant-conversation" aria-expanded={false}>
-          <img src="/aria-logo.png" alt="" width="28" height="28" /><span><strong>AI Assistant</strong><small>{conversation.busy ? "Preparing reply…" : conversation.title}</small></span>
+        <button ref={minimizedRef} className="minimized-restore" type="button" onClick={invokeAssistant} aria-label="Restore conversation" aria-controls="assistant-conversation" aria-expanded={false}>
+          <Sparkles size={18} aria-hidden="true" /><span><strong>Resume conversation</strong><small>{conversation.busy ? "Preparing reply…" : "Return to your chat"}</small></span>
         </button>
-        <button className="chat-icon-button" type="button" aria-label="Close AI Assistant" onClick={dismissAssistant}><X size={18} aria-hidden="true" /></button>
+        <button className="chat-icon-button" type="button" aria-label="Close conversation" onClick={dismissAssistant}><X size={18} aria-hidden="true" /></button>
       </div>}
     </div>
   );

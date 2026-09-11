@@ -235,6 +235,12 @@ This follow-up supersedes earlier persistence and mobile-integration limitations
 
 **Result: scoped fixes verified; device-specific verification remains a stated limitation.**
 
+## Native chat identity — 11 September 2026
+
+Removed repeated Aria and assistant branding from the chat header and response rows. The conversation content and coaching card now share one content edge, while the title remains available in sidebar history. A hidden “Conversation” heading and “Assistant response” labels preserve accessible structure. The minimized floating state uses “Resume conversation” with the existing Sparkles icon.
+
+Desktop column before/after captures were compared together at the same state. Column, floating, 390 × 844 mobile, and minimized states were checked. Both layout-specific control sets remain correct, no chat surface contains an Aria logo, mobile has no horizontal overflow, and all 25 tests plus the production build pass. See [native chat evidence](../docs/design/native-chat/README.md).
+
 ## Mobile hamburger navigation — 11 September 2026
 
 The mobile header now shows a 44 px hamburger action and Aria branding. A native modal drawer reuses desktop sidebar content: search, host navigation, new/saved conversations, Help/Settings context, and Jordan's profile. Search is a nested modal so Escape returns to the same search button; a second Escape closes the drawer and restores hamburger focus. Opening a chat closes the drawer before focusing its composer. Drawer motion is disabled for reduced motion.
