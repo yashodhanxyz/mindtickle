@@ -25,7 +25,9 @@ function CoachingCard({ card, expanded, onToggle }: { card: CoachingCardData; ex
     <dl className="coaching-skills">
       {card.rows.map((row) => <div className="coaching-skill" key={row.id}>
         <dt>{row.skill}</dt><dd className="skill-score">{row.score.toFixed(1)}</dd>
-        <dd id={`evidence-${row.id}`} className="skill-evidence" hidden={!expanded}><EntityText text={row.evidence} /></dd>
+        <dd id={`evidence-${row.id}`} className={`skill-evidence${expanded ? " is-expanded" : ""}`} aria-hidden={!expanded}>
+          <span><EntityText text={row.evidence} /></span>
+        </dd>
       </div>)}
     </dl>
     <p className="coaching-next-step"><strong>Next step:</strong> <EntityText text={card.nextStep} /></p>
@@ -162,8 +164,8 @@ export function AssistantExperience({ conversation, active, layout, onDismiss, o
     }
   };
 
-  return <section ref={surfaceRef} id="assistant-conversation" hidden={!active}
-    className={`assistant-surface assistant-${layout}${viewport.isMobile ? " assistant-mobile" : ""}`}
+  return <section ref={surfaceRef} id="assistant-conversation" inert={!active ? true : undefined} aria-hidden={!active}
+    className={`assistant-surface assistant-${layout}${viewport.isMobile ? " assistant-mobile" : ""}${active ? " is-active" : ""}`}
     role={viewport.isMobile ? "dialog" : "region"} aria-modal={viewport.isMobile ? true : undefined}
     aria-labelledby="assistant-title" onKeyDown={containMobileFocus}
     style={viewport.isMobile ? { "--visual-height": `${viewport.height}px`, "--visual-top": `${viewport.top}px` } as CSSProperties : undefined}>

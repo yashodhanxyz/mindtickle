@@ -44,3 +44,4 @@ GitHub Actions runs these checks on pushes and pull requests.
 Source, assets, configuration, tests, and assignment documentation are versioned. Installed dependencies, build output, local environment files, and macOS metadata are excluded.
 
 - [Review fixes and mobile verification](docs/design/review-fixes/README.md): cross-tab persistence, streaming scroll, keyboard focus, and narrow-screen repairs.
+- [Coaching surface and motion refinement](docs/design/motion-refinement/README.md): neutral result hierarchy, reversible panel motion, evidence disclosure, reduced-motion behavior, and final desktop/mobile captures.

@@ -256,3 +256,11 @@ The mobile header now shows a 44 px hamburger action and Aria branding. A native
 Verified in responsive preview: 390 × 844 visual review; 320 × 568 drawer (280 px wide, scrollable profile content, no page overflow); search dismissal and focus return; existing conversation selection on floating; new conversation on column, retaining Close-only chat controls. Compared old/new 390 px headers together; content styling and spacing are retained. Desktop continues to use the existing sidebar. Physical-phone and screen-reader testing remain unclaimed. All 25 existing tests and production build pass.
 
 Screenshots: [header](../docs/design/review-fixes/mobile-menu/topbar.jpg), [drawer](../docs/design/review-fixes/mobile-menu/drawer.jpg).
+
+## Coaching surface and motion refinement — 11 September 2026
+
+The completed coaching card now uses the existing neutral secondary surface while retaining its border, radius, and white evidence control. This separates the structured result from the conversational prose without introducing another accent colour or unsupported score treatment.
+
+The assistant remains mounted but inert and hidden from accessibility APIs while closed, allowing open and close motion to use the same element. Floating chat uses a short bottom-anchored rise and scale; the desktop column translates from the workspace edge while a stable three-track grid interpolates between zero and the chat width; mobile uses a restrained vertical offset. User-message insertion, the first prose state, the card arrival, evidence disclosure, and the Latest reply affordance use short existing motion tokens. Streamed chunks do not animate individually.
+
+Live verification covered column open and close, floating open and minimise, evidence disclosure, and a 390 × 844 mobile open/close journey. Closed surfaces were confirmed inert and `aria-hidden`; focus returned to the selected conversation on desktop and the menu button on mobile. The coaching card resolved to `var(--secondary)` with its existing border, and the column grid resolved to a zero-width third track after dismissal. All 25 tests and the production build pass. Reduced-motion rules were inspected in source; OS-level reduced-motion playback, physical phones, and screen-reader timing remain explicit verification limits.
